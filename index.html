@@ -305,15 +305,8 @@ function initData(){
   var saved=localStorage.getItem(STORAGE_KEY);
   if(saved){try{appData=JSON.parse(saved)}catch(e){appData=null}}
   if(!appData){appData=JSON.parse(JSON.stringify(INIT_DATA))}
-  if(!appData.meta)appData.meta={};
-  if(!appData.meta.profile)appData.meta.profile={};
-  if(!appData.customers)appData.customers=[];
-  if(!appData.issues)appData.issues=[];
-  appData.customers.forEach((c,i)=>{if(!c._uid)c._uid='c_'+i});
-  appData.issues.forEach((iss,i)=>{if(!iss.id)iss.id='iss_'+i});
-  applyTheme();
   document.getElementById('loginOverlay').style.display='none';
-  updateHeaderInfo();
+  initAfterLogin();
 }
 function smartMerge(old,neu){
   const fm={};(old.customers||[]).forEach(c=>{fm[c.name]=c.fee});
