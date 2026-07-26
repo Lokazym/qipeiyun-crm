@@ -4,10 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>汽配云 CRM 工作台</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.loli.net" crossorigin>
+<link href="https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://registry.npmmirror.com/chart.js/4.4.0/files/dist/chart.umd.min.js"></script>
 <style>
 :root{--bg:#f0f2f5;--card:#fff;--primary:#1677ff;--success:#52c41a;--warning:#faad14;--danger:#ff4d4f;--text:#1f1f1f;--text2:#666;--border:#e8e8e8;--shadow:0 2px 8px rgba(0,0,0,0.06);--header-grad:linear-gradient(135deg,#1a1a2e,#2d2d5f 50%,#4a2c6f);--theme-name:深紫}
 [data-theme="blue"]{--primary:#1677ff;--header-grad:linear-gradient(135deg,#1a1a2e,#16213e 50%,#0f3460);--theme-name:深蓝}
@@ -267,6 +266,16 @@ tr:hover{background:#fafafa}
 <div class="toast" id="toast"></div>
 
 <script>
+// 超时兜底：15秒后强制隐藏加载覆盖层
+setTimeout(function(){
+  var overlay = document.getElementById('loginOverlay');
+  if(overlay && overlay.style.display !== 'none'){
+    overlay.style.display = 'none';
+    var loadingText = document.getElementById('loadingText');
+    if(loadingText) loadingText.textContent = '加载超时，请检查网络连接';
+  }
+}, 15000);
+
 const STORAGE_KEY='qipeiyun_crm_v4';
 // ===== GitHub 云端登录系统 =====
 const GH_REPO='Lokazym/qipeiyun-crm';
