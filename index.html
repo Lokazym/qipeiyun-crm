@@ -301,22 +301,19 @@ const INIT_DATA={"meta": {"total": 308, "date": "2026-07-25"}, "customers": [{"_
 let appData=null;
 
 function initData(){
-  // 独立版（_standalone）：内嵌数据优先，不需要登录
-  if(INIT_DATA.meta&&INIT_DATA.meta._standalone){
-    appData=JSON.parse(JSON.stringify(INIT_DATA));
-    localStorage.setItem(STORAGE_KEY,JSON.stringify(appData));
-    if(!appData.meta)appData.meta={};
-    if(!appData.meta.profile)appData.meta.profile={};
-    if(!appData.customers)appData.customers=[];
-    if(!appData.issues)appData.issues=[];
-    appData.customers.forEach((c,i)=>{if(!c._uid)c._uid='c_'+i});
-    appData.issues.forEach((iss,i)=>{if(!iss.id)iss.id='iss_'+i});
-    applyTheme();
-    document.getElementById('loginOverlay').style.display='none';
-    return;
-  }
-  // 在线版：自动加载云端数据
-  checkLogin();
+  // 直接加载，跳过 GitHub 登录验证
+  var saved=localStorage.getItem(STORAGE_KEY);
+  if(saved){try{appData=JSON.parse(saved)}catch(e){appData=null}}
+  if(!appData){appData=JSON.parse(JSON.stringify(INIT_DATA))}
+  if(!appData.meta)appData.meta={};
+  if(!appData.meta.profile)appData.meta.profile={};
+  if(!appData.customers)appData.customers=[];
+  if(!appData.issues)appData.issues=[];
+  appData.customers.forEach((c,i)=>{if(!c._uid)c._uid='c_'+i});
+  appData.issues.forEach((iss,i)=>{if(!iss.id)iss.id='iss_'+i});
+  applyTheme();
+  document.getElementById('loginOverlay').style.display='none';
+  updateHeaderInfo();
 }
 function smartMerge(old,neu){
   const fm={};(old.customers||[]).forEach(c=>{fm[c.name]=c.fee});
@@ -327,7 +324,7 @@ function smartMerge(old,neu){
   (old.customers||[]).forEach(c=>{if(!nn.has(c.name)&&c._uid&&c._uid.startsWith('manual_'))m.customers.push(c)});
   m.meta.merged=true;m.meta.oldDate=old.meta.date;return m;
 }
-function saveData(){localStorage.setItem(STORAGE_KEY,JSON.stringify(appData));if(ghToken&&ghUser&&!INIT_DATA.meta._standalone){clearTimeout(window._ghSaveTimer);window._ghSaveTimer=setTimeout(()=>saveCloudData(ghUser,ghToken,appData),2000)}}
+function saveData(){localStorage.setItem(STORAGE_KEY,JSON.stringify(appData))}
 function exportData(){const b=new Blob([JSON.stringify(appData,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='汽配云CRM_'+new Date().toISOString().slice(0,10)+'.json';a.click();toast('已导出')}
 function exportStandalone(){
   toast('⏳ 正在生成独立版...');
