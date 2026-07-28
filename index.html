@@ -698,7 +698,9 @@ function renderMe(){
     '<div style="padding:12px;background:#fafafa;border-radius:8px"><div style="color:var(--text2);font-size:11px;margin-bottom:4px">60天内到期</div><div style="font-size:18px;font-weight:600;color:#d46b08">'+activeCustomers().filter(c=>c.expiring60).length+'</div></div>'+
     '<div style="padding:12px;background:#fafafa;border-radius:8px"><div style="color:var(--text2);font-size:11px;margin-bottom:4px">本月续费金额</div><div style="font-size:18px;font-weight:600;color:var(--success)">'+fmt(activeCustomers().filter(c=>{const d=c.lastPayDate||'';if(!d)return false;return d.replace(/\//g,'-').startsWith(overviewMonth)}).reduce((s,c)=>s+(c.fee||0),0))+'</div></div>'+
     '</div></div>'+
-    '<div class="card" style="margin-top:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="margin:0">待办事项</h3><button class="btn btn-primary btn-sm" onclick="openTodoModal()">+ 新建待办</button></div><div id="todoList"></div></div>'+'<div class="card" style="margin-top:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="margin:0">客户账号密码管理</h3><div style="display:flex;gap:6px"><input id="acSearch" placeholder="搜索客户" style="font-size:12px;padding:4px 8px;border:1px solid var(--border);border-radius:4px;width:120px" oninput="renderAcctManager()"><button class="btn btn-outline btn-xs" onclick="pasteAcctImport()">粘贴导入</button><button class="btn btn-outline btn-xs" onclick="copyAllAcct()">复制全部</button></div></div><div id="acCount" style="font-size:12px;color:var(--text2);margin-bottom:8px"></div><div class="table-wrap" id="acctManagerTable" style="max-height:400px"></div></div>'
+    '<div class="card" style="margin-top:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="margin:0">待办事项</h3><button class="btn btn-primary btn-sm" onclick="openTodoModal()">+ 新建待办</button></div><div id="todoList"></div></div>'+'<div class="card" style="margin-top:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="margin:0">客户账号密码管理</h3><div style="display:flex;gap:6px"><input id="acSearch" placeholder="搜索客户" style="font-size:12px;padding:4px 8px;border:1px solid var(--border);border-radius:4px;width:120px" oninput="renderAcctManager()"><button class="btn btn-outline btn-xs" onclick="pasteAcctImport()">粘贴导入</button><button class="btn btn-outline btn-xs" onclick="copyAllAcct()">复制全部</button></div></div><div id="acCount" style="font-size:12px;color:var(--text2);margin-bottom:8px"></div><div class="table-wrap" id="acctManagerTable" style="max-height:400px"></div></div>'+
+'<div style="font-size:11px;color:var(--text2);margin-top:8px">粘贴导入格式：每行 <code>客户名 系统:ERP 账号:admin 密码:pwd 备注:xx</code>，首词自动匹配客户</div>'+
+'<div class="card" style="margin-top:14px"><h3 style="margin-bottom:10px">OCR 图片识别设置</h3><div style="display:flex;gap:8px;align-items:center"><input id="ocrKeyInput" placeholder="ocr.space API Key（留空用默认）" style="flex:1;font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:4px" value="'+(appData.meta.ocrKey||'')+'"><button class="btn btn-primary btn-sm" onclick="saveOcrKey()">保存</button></div><div style="font-size:11px;color:var(--text2);margin-top:6px">当前使用：'+(appData.meta.ocrKey?appData.meta.ocrKey.slice(0,6)+'…（自定义）':'默认共享Key（可能限流）')+'</div></div>'
   renderTodos();
   renderAcctManager();
 }
@@ -968,6 +970,8 @@ document.getElementById('syncModal').addEventListener('click',function(e){if(e.t
 
 // ===== 新增：客户账号密码管理（快速复制 / 粘贴导入） =====
 const OCR_API_KEY='K88888888888988';
+function getOcrKey(){return (appData&&appData.meta&&appData.meta.ocrKey)||OCR_API_KEY;}
+function saveOcrKey(){const v=document.getElementById('ocrKeyInput').value.trim();if(!appData.meta)appData.meta={};appData.meta.ocrKey=v;saveData();toast(v?'已保存自定义OCR Key':'已恢复默认Key');renderMe();}
 function copyTextRaw(t){
   if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){toast('已复制')}).catch(function(){fallbackCopy(t)});}
   else fallbackCopy(t);
@@ -1007,7 +1011,7 @@ function ocrImage(file,onSuccess,onError){
     var base64=e.target.result;
     var formData=new FormData();
     formData.append('base64Image',base64);formData.append('language','chs');formData.append('isOverlayRequired','false');formData.append('scale','true');formData.append('OCREngine','2');
-    fetch('https://api.ocr.space/parse/image',{method:'POST',headers:{'apikey':OCR_API_KEY},body:formData})
+    fetch('https://api.ocr.space/parse/image',{method:'POST',headers:{'apikey':getOcrKey()},body:formData})
     .then(function(r){return r.json()}).then(function(data){
       if(data.IsErroredOnProcessing){if(onError)onError(data.ErrorMessage||'识别失败');toast('识别失败');return;}
       var text=(data.ParsedResults||[]).map(function(r){return r.ParsedText||''}).join('\n').trim();
