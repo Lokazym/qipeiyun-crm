@@ -119,7 +119,7 @@ tr:hover{background:#fafafa}
 <!-- 禅道地址 -->
 <div class="card" style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h3 style="margin:0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> 禅道快捷入口</h3></div><div style="display:flex;gap:8px;align-items:center"><input type="text" id="zentaoUrl" placeholder="禅道地址，如 https://zentao.xxx.com" style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px" onchange="saveZentaoUrl()"><button class="btn btn-primary btn-sm" onclick="openZentao()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg> 打开禅道</button><button class="btn btn-outline btn-sm" onclick="copyZentao()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6a2 2 0 0 1 2 2v1h2a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2V4a2 2 0 0 1 2-2z"/></svg> 复制地址</button></div></div>
 <!-- 批量导入 -->
-<div class="card" style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="margin:0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> 批量导入问题</h3><button class="btn btn-outline btn-xs" onclick="document.getElementById('pasteIssueArea').value=''">清空</button></div><div style="background:#fafafa;border-radius:6px;padding:8px 12px;margin-bottom:8px;font-size:11px;color:var(--text2)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg> <strong>模板格式：</strong>从Excel复制后粘贴即可，支持 <strong>Tab</strong> 或 <strong>逗号</strong> 分隔。<br>列顺序：<code>客户名称 → 优先级(高/中/低) → 问题描述 → 类型(bug/咨询/需求/其他) → 客服 → 备注</code></div><textarea id="pasteIssueArea" rows="3" placeholder="粘贴表格数据..." style="width:100%;font-size:12px;border:1px solid var(--border);border-radius:6px;padding:8px;font-family:monospace"></textarea><div style="margin-top:6px;display:flex;gap:6px"><button class="btn btn-primary btn-sm" onclick="pasteIssues()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6a2 2 0 0 1 2 2v1h2a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2V4a2 2 0 0 1 2-2z"/></svg> 解析并导入</button><button class="btn btn-outline btn-sm" onclick="openImportIssueModal()">📄 CSV导入</button><span style="font-size:11px;color:var(--text2);margin-left:8px;line-height:28px" id="pasteResult"></span></div></div>
+<div class="card" style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="margin:0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> 批量导入问题</h3><button class="btn btn-outline btn-xs" onclick="document.getElementById('pasteIssueArea').value=''">清空</button><button class="btn btn-outline btn-sm" onclick="ocrToIssueArea()" style="margin-left:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> 图片识别</button></div><div style="background:#fafafa;border-radius:6px;padding:8px 12px;margin-bottom:8px;font-size:11px;color:var(--text2)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg> <strong>模板格式：</strong>从Excel复制后粘贴即可，支持 <strong>Tab</strong> 或 <strong>逗号</strong> 分隔。<br>列顺序：<code>客户名称 → 优先级(高/中/低) → 问题描述 → 类型(bug/咨询/需求/其他) → 客服 → 备注</code></div><textarea id="pasteIssueArea" rows="3" placeholder="粘贴表格数据..." style="width:100%;font-size:12px;border:1px solid var(--border);border-radius:6px;padding:8px;font-family:monospace"></textarea><div style="margin-top:6px;display:flex;gap:6px"><button class="btn btn-primary btn-sm" onclick="pasteIssues()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6a2 2 0 0 1 2 2v1h2a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2V4a2 2 0 0 1 2-2z"/></svg> 解析并导入</button><button class="btn btn-outline btn-sm" onclick="openImportIssueModal()">📄 CSV导入</button><span style="font-size:11px;color:var(--text2);margin-left:8px;line-height:28px" id="pasteResult"></span></div></div>
 <div class="quick-add"><input type="text" id="quickIssueName" placeholder="客户名称" list="customerList"><datalist id="customerList"></datalist><select id="quickIssueType"><option value="bug"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="6" width="8" height="13" rx="4"/><path d="M19 7l-3 2M5 7l3 2M19 13h-3M8 13H5M19 19l-3-2M5 19l3-2M12 6V4"/></svg> Bug</option><option value="咨询" selected>💬 咨询</option><option value="需求"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg> 需求</option><option value="其他"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5M9 10.76V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4.76a2 2 0 0 0 .59 1.41l2.41 2.41a2 2 0 0 1 .59 1.42V18a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-1.59a2 2 0 0 1 .59-1.42l2.41-2.41a2 2 0 0 0 .59-1.41z"/></svg> 其他</option></select><select id="quickIssuePriority"><option value="high"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="#ff4d4f"/></svg>高</option><option value="medium" selected><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="#faad14"/></svg>中</option><option value="low"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="#d4b106"/></svg>低</option></select><input type="text" id="quickIssueReason" placeholder="问题描述" style="flex:2"><button class="btn btn-primary btn-sm" onclick="quickAddIssue()">+ 快速添加</button></div>
 <div class="kpi-row" id="kpiIssues"></div>
 <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="margin:0">问题表格（可直接编辑）<span class="count" id="issueTableCount"></span></h3><div style="display:flex;gap:6px"><button class="btn btn-outline btn-sm" onclick="addIssueRow()">+ 添加行</button></div></div><div class="issue-table-wrap" id="issueTable"></div></div></div>
@@ -546,8 +546,9 @@ function renderMe(){
     '<div style="padding:12px;background:#fafafa;border-radius:8px"><div style="color:var(--text2);font-size:11px;margin-bottom:4px">60天内到期</div><div style="font-size:18px;font-weight:600;color:#d46b08">'+activeCustomers().filter(c=>c.expiring60).length+'</div></div>'+
     '<div style="padding:12px;background:#fafafa;border-radius:8px"><div style="color:var(--text2);font-size:11px;margin-bottom:4px">本月续费金额</div><div style="font-size:18px;font-weight:600;color:var(--success)">'+fmt(activeCustomers().filter(c=>{const d=c.lastPayDate||'';if(!d)return false;return d.replace(/\//g,'-').startsWith(overviewMonth)}).reduce((s,c)=>s+(c.fee||0),0))+'</div></div>'+
     '</div></div>'+
-    '<div class="card" style="margin-top:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="margin:0">待办事项</h3><button class="btn btn-primary btn-sm" onclick="openTodoModal()">+ 新建待办</button></div><div id="todoList"></div></div>';
+    '<div class="card" style="margin-top:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="margin:0">待办事项</h3><button class="btn btn-primary btn-sm" onclick="openTodoModal()">+ 新建待办</button></div><div id="todoList"></div></div>'+'<div class="card" style="margin-top:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="margin:0">客户账号密码管理</h3><div style="display:flex;gap:6px"><input id="acSearch" placeholder="搜索客户" style="font-size:12px;padding:4px 8px;border:1px solid var(--border);border-radius:4px;width:120px" oninput="renderAcctManager()"><button class="btn btn-outline btn-xs" onclick="pasteAcctImport()">粘贴导入</button><button class="btn btn-outline btn-xs" onclick="copyAllAcct()">复制全部</button></div></div><div id="acCount" style="font-size:12px;color:var(--text2);margin-bottom:8px"></div><div class="table-wrap" id="acctManagerTable" style="max-height:400px"></div></div>'
   renderTodos();
+  renderAcctManager();
 }
 function saveMonthKpi(el){
   const mi=el.dataset.mi,mf=el.dataset.mf,v=parseFloat(el.textContent)||0;
@@ -833,6 +834,70 @@ document.getElementById('feeStatus').addEventListener('change',renderFee);
 document.querySelectorAll('.modal-overlay').forEach(o=>{o.addEventListener('click',function(e){if(e.target===this)this.classList.remove('show')})});
 // 同步弹窗初始化
 document.getElementById('syncModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show')});
+
+// ===== 新增：客户账号密码管理（快速复制 / 粘贴导入） =====
+const OCR_API_KEY='K88888888888988';
+function copyTextRaw(t){
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){toast('已复制')}).catch(function(){fallbackCopy(t)});}
+  else fallbackCopy(t);
+}
+function fallbackCopy(t){var ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('已复制');}catch(e){toast('复制失败');}document.body.removeChild(ta);}
+function copyText(uid,idx){var c=appData.customers.find(function(x){return x._uid===uid});if(!c||!c.accounts||!c.accounts[idx])return;var a=c.accounts[idx];var t='系统:'+(a.system||'')+' 账号:'+(a.account||'')+' 密码:'+(a.password||'')+(a.remark?' 备注:'+a.remark:'');copyTextRaw(t);}
+function copyAllAcct(){var lines=[];activeCustomers().forEach(function(c){(c.accounts||[]).forEach(function(a){lines.push(c.name+' | 系统:'+(a.system||'')+' 账号:'+(a.account||'')+' 密码:'+(a.password||'')+(a.remark?' 备注:'+a.remark:''));});});if(!lines.length){toast('暂无账号');return;}copyTextRaw(lines.join('\n'));}
+function pasteAcctImport(){if(navigator.clipboard&&navigator.clipboard.readText){navigator.clipboard.readText().then(function(t){parseAcctText(t)}).catch(function(){toast('读取剪贴板失败，请手动粘贴')});}else toast('当前环境不支持读取剪贴板');}
+function parseAcctText(t){var lines=t.split('\n').map(function(l){return l.trim()}).filter(Boolean);var n=0;lines.forEach(function(line){var nm=line.match(/^([^\s\t:：]+)[\s\t]+/);var cname=nm?nm[1]:null;var c=cname?activeCustomers().find(function(x){return x.name.indexOf(cname)>-1}):null;if(!c){toast('未找到客户: '+(cname||line).slice(0,20));return;}var sys=(line.match(/系统[:：]\s*(\S+)/)||[])[1]||'';var acc=(line.match(/账号[:：]\s*(\S+)/)||[])[1]||(line.match(/账户[:：]\s*(\S+)/)||[])[1]||'';var pwd=(line.match(/密码[:：]\s*(\S+)/)||[])[1]||'';var rem=(line.match(/备注[:：]\s*(\S+)/)||[])[1]||'';if(!acc&&!pwd){var parts=line.replace(/^\S+\s*/,'').split(/\s+/).filter(Boolean);if(parts.length>=3){sys=parts[0]||'';acc=parts[1]||'';pwd=parts[2]||'';rem=parts.slice(3).join(' ')||'';}}if(!acc&&!pwd){toast('跳过(无账号密码): '+line.slice(0,20));return;}if(!c.accounts)c.accounts=[];c.accounts.push({system:sys,account:acc,password:pwd,remark:rem});n++;});saveData();renderAcctManager();toast('已导入 '+n+' 条');}
+function updateAcct(uid,idx,field,value){var c=appData.customers.find(function(x){return x._uid===uid});if(!c||!c.accounts||!c.accounts[idx])return;c.accounts[idx][field]=value;saveData();}
+function deleteAcct(uid,idx){var c=appData.customers.find(function(x){return x._uid===uid});if(!c||!c.accounts)return;c.accounts.splice(idx,1);saveData();renderAcctManager();}
+function renderAcctManager(){
+  var s=(document.getElementById('acSearch')?document.getElementById('acSearch').value:'').toLowerCase();
+  var list=activeCustomers().filter(function(c){if(!s)return true;return c.name.toLowerCase().indexOf(s)>-1;});
+  var withAcct=list.filter(function(c){return c.accounts&&c.accounts.length>0;});
+  var el=document.getElementById('acCount');if(el)el.textContent='共'+list.length+'个客户，'+withAcct.length+'个有账号';
+  var table=document.getElementById('acctManagerTable');if(!table)return;
+  if(withAcct.length===0){table.innerHTML='<div class="empty-state" style="padding:20px"><p>暂无账号密码记录。点击「粘贴导入」批量添加，或上方搜索客户后用「图片识别」添加。</p></div>';return;}
+  var rows='';
+  list.filter(function(c){return c.accounts&&c.accounts.length>0;}).forEach(function(c){
+    c.accounts.forEach(function(a,ai){
+      rows+='<tr><td style="font-size:12px">'+(ai===0?'<strong>'+c.name+'</strong>':'')+'</td>'
+        +'<td><input value="'+(a.system||'')+'" onchange="updateAcct(\''+c._uid+'\','+ai+',\'system\',this.value)" style="width:55px;font-size:11px;border:1px solid transparent;background:transparent"></td>'
+        +'<td><input value="'+(a.account||'')+'" onchange="updateAcct(\''+c._uid+'\','+ai+',\'account\',this.value)" style="width:100%;font-size:11px;border:1px solid transparent;background:transparent"></td>'
+        +'<td><input value="'+(a.password||'')+'" onchange="updateAcct(\''+c._uid+'\','+ai+',\'password\',this.value)" style="width:100%;font-size:11px;border:1px solid transparent;background:transparent"></td>'
+        +'<td><input value="'+(a.remark||'')+'" onchange="updateAcct(\''+c._uid+'\','+ai+',\'remark\',this.value)" style="width:100%;font-size:11px;border:1px solid transparent;background:transparent"></td>'
+        +'<td><button class="btn btn-outline btn-xs" onclick="copyText(\''+c._uid+'\','+ai+')">复制</button></td>'
+        +'<td><button class="btn btn-outline btn-xs" style="color:var(--danger)" onclick="deleteAcct(\''+c._uid+'\','+ai+')">×</button></td></tr>';
+    });
+  });
+  table.innerHTML='<table><thead><tr><th style="width:100px">客户</th><th style="width:60px">系统</th><th>账号</th><th>密码</th><th>备注</th><th style="width:60px">复制</th><th style="width:40px">操作</th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+function ocrImage(file,onSuccess,onError){
+  toast('正在识别图片...');
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var base64=e.target.result;
+    var formData=new FormData();
+    formData.append('base64Image',base64);formData.append('language','chs');formData.append('isOverlayRequired','false');formData.append('scale','true');formData.append('OCREngine','2');
+    fetch('https://api.ocr.space/parse/image',{method:'POST',headers:{'apikey':OCR_API_KEY},body:formData})
+    .then(function(r){return r.json()}).then(function(data){
+      if(data.IsErroredOnProcessing){if(onError)onError(data.ErrorMessage||'识别失败');toast('识别失败');return;}
+      var text=(data.ParsedResults||[]).map(function(r){return r.ParsedText||''}).join('\n').trim();
+      if(text){if(onSuccess)onSuccess(text);toast('识别成功');}else{if(onError)onError('未识别到文字');toast('未识别到文字');}
+    }).catch(function(err){if(onError)onError(err.message);toast('识别失败：网络错误');});
+  };
+  reader.readAsDataURL(file);
+}
+function pickImage(callback){var i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=function(e){if(e.target.files&&e.target.files[0])callback(e.target.files[0])};i.click();}
+function ocrToIssueArea(){pickImage(function(file){ocrImage(file,function(text){var area=document.getElementById('pasteIssueArea');area.value=(area.value?area.value+'\n':'')+text;toast('已填入，可编辑后点「解析并导入」');});});}
+// 问题清单：Ctrl+V 粘贴图片自动识别导入
+document.addEventListener('paste',function(e){
+  var items=(e.clipboardData&&e.clipboardData.items)||[];
+  for(var k=0;k<items.length;k++){
+    if(items[k].type&&items[k].type.indexOf('image')>-1){
+      var f=items[k].getAsFile();var area=document.getElementById('pasteIssueArea');
+      if(f&&area){e.preventDefault();ocrImage(f,function(text){area.value=(area.value?area.value+'\n':'')+text;toast('已识别并填入，可编辑后点「解析并导入」');},function(msg){toast('识别失败：'+msg)});return;}
+    }
+  }
+});
+
 </script>
 </body>
 </html>
