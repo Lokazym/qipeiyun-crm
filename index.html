@@ -160,6 +160,7 @@ tr:hover{background:#fafafa}
 <p style="margin-top:12px"><strong>📊 总览</strong><br>KPI 卡片全部<strong>可点击跳转</strong>：客户总数→客户列表、60天到期→到期客户名单、待跟进→问题跟进、月业绩→个人中心。支持切换月份查看历史。</p>
 <p style="margin-top:12px"><strong>👥 客户列表 / Excel更新</strong><br>点客户名进入画像，点 ✏️ 编辑详情。<strong>上传Excel更新时只更新「时间」和「归属人员」</strong>（专属客服/销售/运维/工程师/失效时间/缴费时间等），账号密码、服务备注等其余数据一律保留；Excel中的新客户自动新增。</p>
 <p style="margin-top:12px"><strong>🔔 问题跟进</strong><br>在Excel/微信里复制内容后点<strong>「一键粘贴导入」</strong>，自动读取剪贴板并弹出<strong>预览表</strong>——每行显示匹配客户和状态，可勾选、可直接改客户名，点「确认导入」完成。截图直接 <strong>Ctrl+V</strong> 自动OCR进同一预览。表格内可直接编辑。</p>
+<p style="margin-top:12px"><strong>🎯 业绩目标（个人中心）</strong><br>月度目标<strong>只需设置一次，自动同步到全年12个月</strong>（点「编辑业绩」填统一目标，或在明细表点任意月份的目标数字修改）。已完成金额逐月各自填写，年度目标 = 月目标 × 12 自动合计。</p>
 <p style="margin-top:12px"><strong>🔑 账号密码管理（个人中心）</strong><br>复制好内容点「粘贴导入」，自动读剪贴板并弹出<strong>预览表</strong>确认后导入。支持Excel表格粘贴（客户名/系统/账号/密码/备注）、标签式（账号:xx 密码:xx）、空格/逗号分隔；客户名模糊匹配（未匹配的行可在预览里直接改名修复）；重复账号自动更新密码不重复添加。每行支持一键复制。</p>
 <p style="margin-top:12px"><strong>📷 OCR识别设置（个人中心）</strong><br>图片识别默认用共享Key，如识别失败可在个人中心「OCR图片识别设置」填入自己的 ocr.space 免费Key。</p>
 <p style="margin-top:12px"><strong>🛟 数据安全</strong><br>数据加密存储于云端仓库 + 浏览器本地缓存双保险。右上角「更多」菜单可随时一键备份、导出JSON。</p>
@@ -685,8 +686,8 @@ function renderMe(){
     '<div style="margin-top:10px"><div style="font-size:12px;color:var(--text2);margin-bottom:6px">年度进度</div><div style="background:#f0f0f0;border-radius:10px;height:20px;overflow:hidden"><div style="width:'+Math.min(ypct,100)+'%;height:100%;background:'+ycolor+';border-radius:10px;transition:width .3s"></div></div></div>'+
     '</div>'+
     '<div class="card"><h3 style="margin-bottom:10px">月度业绩明细（点击数字编辑）</h3>'+
-    '<div style="font-size:11px;color:var(--text2);margin-bottom:8px">点击目标或已完成列的数字直接编辑，回车保存</div>'+
-    '<div class="table-wrap"><table><thead><tr><th>月份</th><th>目标（元）</th><th>已完成（元）</th><th>完成率</th></tr></thead><tbody>'+
+    '<div style="font-size:11px;color:var(--text2);margin-bottom:8px">点击数字直接编辑，回车保存。<b>目标改任意一个月即自动同步到全年12个月</b>；已完成金额逐月各自记录</div>'+
+    '<div class="table-wrap"><table><thead><tr><th>月份</th><th>目标（元·全年统一）</th><th>已完成（元）</th><th>完成率</th></tr></thead><tbody>'+
     monthRows+
     '</tbody></table></div></div>'+
     '<div class="card" style="margin-top:14px"><h3 style="margin-bottom:10px">数据概览</h3>'+
@@ -702,13 +703,21 @@ function renderMe(){
   renderAcctManager();
 }
 function saveMonthKpi(el){
-  const mi=el.dataset.mi,mf=el.dataset.mf,v=parseFloat(el.textContent)||0;
+  const mi=el.dataset.mi,mf=el.dataset.mf,v=parseFloat(String(el.textContent).replace(/[,，\s]/g,''))||0;
   if(!appData.meta.profile)appData.meta.profile={};
   if(!appData.meta.profile.months)appData.meta.profile.months={};
-  if(!appData.meta.profile.months[mi])appData.meta.profile.months[mi]={target:0,done:0};
-  appData.meta.profile.months[mi][mf]=v;
+  if(mf==='target'){
+    // 目标只需设置一次，自动同步到全年12个月
+    for(let i=1;i<=12;i++){
+      if(!appData.meta.profile.months[i])appData.meta.profile.months[i]={target:0,done:0};
+      appData.meta.profile.months[i].target=v;
+    }
+  }else{
+    if(!appData.meta.profile.months[mi])appData.meta.profile.months[mi]={target:0,done:0};
+    appData.meta.profile.months[mi][mf]=v;
+  }
   saveData();renderMe();renderOverview();
-  toast(mi+'月'+(mf==='target'?'目标':'已完成')+'='+fmt(v)+'元');
+  toast(mf==='target'?('月度目标='+fmt(v)+'元，已自动同步全年12个月'):(mi+'月已完成='+fmt(v)+'元'));
 }
 
 function renderOverviewTodos(){
@@ -776,28 +785,35 @@ function openKpiEditModal(){
   if(!appData.meta.profile)appData.meta.profile={};
   const months=appData.meta.profile.months||{};
   const yr=new Date().getFullYear();
+  // 取当前已设的目标（找第一个非0值）作为统一目标默认值
+  let ut=0;
+  for(let i=1;i<=12;i++){const t=(months[i]||{}).target||0;if(t>0){ut=t;break}}
   let rows='';
   for(let i=1;i<=12;i++){
     const m=months[i]||{target:0,done:0};
-    rows+='<tr><td style="font-weight:600">'+i+'月</td><td><input type="number" id="kpiT_'+i+'" value="'+m.target+'" placeholder="0" style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:4px;font-size:13px"></td><td><input type="number" id="kpiD_'+i+'" value="'+m.done+'" placeholder="0" style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:4px;font-size:13px"></td></tr>';
+    rows+='<tr><td style="font-weight:600">'+i+'月</td><td><input type="number" id="kpiD_'+i+'" value="'+m.done+'" placeholder="0" style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:4px;font-size:13px"></td></tr>';
   }
   const m=document.createElement('div');m.className='modal-overlay show';m.id='kpiEditModal';
   m.innerHTML='<div class="modal" style="max-width:500px;max-height:80vh;overflow-y:auto"><h3>'+yr+'年度业绩设置</h3>'+
-    '<div style="font-size:12px;color:var(--text2);margin-bottom:10px">逐月填写目标金额和已完成金额，年度合计自动计算</div>'+
-    '<table style="width:100%;font-size:13px"><thead><tr><th style="width:60px">月份</th><th>目标（元）</th><th>已完成（元）</th></tr></thead><tbody>'+rows+'</tbody></table>'+
+    '<div style="background:#e6f7ff;border-radius:8px;padding:12px;margin-bottom:14px"><div style="font-size:13px;font-weight:600;margin-bottom:6px">月度目标（元）— 设置一次，自动应用到全年12个月</div>'+
+    '<input type="number" id="kpiUnifiedT" value="'+(ut||'')+'" placeholder="如 50000" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:14px" oninput="var v=parseFloat(this.value)||0;document.getElementById(\'kpiYearPreview\').textContent=v>0?\'年度目标合计：\'+fmt(v*12)+\' 元\':\'\'">'+ 
+    '<div id="kpiYearPreview" style="font-size:12px;color:var(--primary);margin-top:6px">'+(ut>0?'年度目标合计：'+fmt(ut*12)+' 元':'')+'</div></div>'+
+    '<div style="font-size:12px;color:var(--text2);margin-bottom:8px">已完成金额逐月填写：</div>'+
+    '<table style="width:100%;font-size:13px"><thead><tr><th style="width:60px">月份</th><th>已完成（元）</th></tr></thead><tbody>'+rows+'</tbody></table>'+
     '<div class="form-actions" style="margin-top:14px"><button class="btn btn-outline" onclick="document.getElementById(\'kpiEditModal\').remove()">取消</button><button class="btn btn-primary" onclick="saveKpiEdit()">保存</button></div></div>';
   document.body.appendChild(m);
 }
 function saveKpiEdit(){
   if(!appData.meta.profile)appData.meta.profile={};
   if(!appData.meta.profile.months)appData.meta.profile.months={};
+  const ut=parseFloat(document.getElementById('kpiUnifiedT').value)||0;
   for(let i=1;i<=12;i++){
-    appData.meta.profile.months[i]={target:parseFloat(document.getElementById('kpiT_'+i).value)||0,done:parseFloat(document.getElementById('kpiD_'+i).value)||0};
+    appData.meta.profile.months[i]={target:ut,done:parseFloat(document.getElementById('kpiD_'+i).value)||0};
   }
   saveData();
   document.getElementById('kpiEditModal').remove();
   renderMe();renderOverview();
-  toast('业绩数据已保存');
+  toast(ut>0?('月度目标 '+fmt(ut)+' 元已应用到全年12个月'):'业绩数据已保存');
 }
 function openProfileModal(){
   if(!appData.meta.profile)appData.meta.profile={};
