@@ -161,7 +161,8 @@ tr:hover{background:#fafafa}
 <p style="margin-top:12px"><strong>👥 客户列表 / Excel更新</strong><br>点客户名进入画像，点 ✏️ 编辑详情。<strong>上传Excel更新时只更新「时间」和「归属人员」</strong>（专属客服/销售/运维/工程师/失效时间/缴费时间等），账号密码、服务备注等其余数据一律保留；Excel中的新客户自动新增。</p>
 <p style="margin-top:12px"><strong>🔔 问题跟进</strong><br>在Excel/微信里复制内容后点<strong>「一键粘贴导入」</strong>，自动读取剪贴板并弹出<strong>预览表</strong>——每行显示匹配客户和状态，可勾选、可直接改客户名，点「确认导入」完成。截图直接 <strong>Ctrl+V</strong> 自动OCR进同一预览。表格内可直接编辑。</p>
 <p style="margin-top:12px"><strong>🎯 业绩目标（个人中心）</strong><br>月度目标<strong>只需设置一次，自动同步到全年12个月</strong>（点「编辑业绩」填统一目标，或在明细表点任意月份的目标数字修改）。已完成金额逐月各自填写，年度目标 = 月目标 × 12 自动合计。</p>
-<p style="margin-top:12px"><strong>🔑 账号密码管理（个人中心）</strong><br>复制好内容点「粘贴导入」，自动读剪贴板并弹出<strong>预览表</strong>确认后导入。支持Excel表格粘贴（客户名/系统/账号/密码/备注）、标签式（账号:xx 密码:xx）、空格/逗号分隔；客户名模糊匹配（未匹配的行可在预览里直接改名修复）；重复账号自动更新密码不重复添加。每行支持一键复制。</p>
+<p style="margin-top:12px"><strong>🔑 账号密码管理（个人中心）</strong><br>复制好内容点「粘贴导入」，自动读剪贴板并弹出<strong>预览表</strong>确认后导入。支持Excel表格粘贴（客户名/系统/账号/密码/备注）、标签式（账号:xx 密码:xx）、空格/逗号分隔，以及<strong>混合文本智能拆分</strong>——如「华吉达hjd123 abc456」自动识别：中文=客户名、字母数字前段=账号、后段=密码（连在一起的也能对半拆）。客户名模糊匹配（未匹配的行可在预览里直接改名修复）；重复账号自动更新密码不重复添加。每行支持一键复制。</p>
+<p style="margin-top:12px"><strong>👤 个人中心布局</strong><br>待办事项已置顶（打开个人中心第一眼就是待办）；个人信息栏已移除。</p>
 <p style="margin-top:12px"><strong>📷 OCR识别设置（个人中心）</strong><br>图片识别默认用共享Key，如识别失败可在个人中心「OCR图片识别设置」填入自己的 ocr.space 免费Key。</p>
 <p style="margin-top:12px"><strong>🛟 数据安全</strong><br>数据加密存储于云端仓库 + 浏览器本地缓存双保险。右上角「更多」菜单可随时一键备份、导出JSON。</p>
 </div>
@@ -672,11 +673,7 @@ function renderMe(){
     monthRows+='<tr style="'+(isCur?'background:#e6f7ff':'')+'"><td style="font-weight:'+(isCur?'700':'400')+'">'+i+'月'+(isCur?' (本月)':'')+'</td><td><span class="editable" contenteditable="true" data-mi="'+i+'" data-mf="target" onblur="saveMonthKpi(this)" onkeydown="if(event.key===\'Enter\'){event.preventDefault();this.blur()}">'+(m.target>0?fmt(m.target):'0')+'</span></td><td><span class="editable" contenteditable="true" data-mi="'+i+'" data-mf="done" onblur="saveMonthKpi(this)" onkeydown="if(event.key===\'Enter\'){event.preventDefault();this.blur()}">'+(m.done>0?fmt(m.done):'0')+'</span></td><td style="color:'+mc+';font-weight:600">'+pct+'%</td></tr>';
   }
   document.getElementById('meContent').innerHTML=
-    '<div class="card" style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><h3 style="margin:0">个人信息</h3><button class="btn btn-primary btn-sm" onclick="openProfileModal()">编辑</button></div>'+
-    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;font-size:14px">'+
-    '<div><div style="font-size:12px;color:var(--text2);margin-bottom:4px">姓名</div><div style="font-size:18px;font-weight:600">'+(pf.name||'<span style="color:var(--text2)">未设置</span>')+'</div></div>'+
-    '<div><div style="font-size:12px;color:var(--text2);margin-bottom:4px">手机号</div><div style="font-size:18px;font-weight:600">'+(pf.phone||'<span style="color:var(--text2)">未设置</span>')+'</div></div>'+
-    '</div></div>'+
+    '<div class="card" style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="margin:0">📌 待办事项</h3><button class="btn btn-primary btn-sm" onclick="openTodoModal()">+ 新建待办</button></div><div id="todoList"></div></div>'+
     '<div class="card" style="margin-bottom:14px;position:relative"><h3 style="margin-bottom:14px">'+yr+'年度业绩（12个月合计）</h3><button class="btn btn-primary btn-sm" style="position:absolute;top:18px;right:18px" onclick="openKpiEditModal()">编辑业绩</button>'+
     '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px">'+
     '<div style="text-align:center;padding:16px;background:#fafafa;border-radius:8px"><div style="font-size:12px;color:var(--text2);margin-bottom:6px">年度目标</div><div style="font-size:24px;font-weight:700;color:var(--primary)">'+(yt>0?fmt(yt):'未设置')+'</div><div style="font-size:11px;color:var(--text2);margin-top:2px">12个月合计</div></div>'+
@@ -696,8 +693,8 @@ function renderMe(){
     '<div style="padding:12px;background:#fafafa;border-radius:8px"><div style="color:var(--text2);font-size:11px;margin-bottom:4px">待跟进问题</div><div style="font-size:18px;font-weight:600;color:var(--warning)">'+appData.issues.filter(i=>i.status!=='done').length+'</div></div>'+
     '<div style="padding:12px;background:#fafafa;border-radius:8px"><div style="color:var(--text2);font-size:11px;margin-bottom:4px">60天内到期</div><div style="font-size:18px;font-weight:600;color:#d46b08">'+activeCustomers().filter(c=>c.expiring60).length+'</div></div>'+
         '</div></div>'+
-    '<div class="card" style="margin-top:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="margin:0">待办事项</h3><button class="btn btn-primary btn-sm" onclick="openTodoModal()">+ 新建待办</button></div><div id="todoList"></div></div>'+'<div class="card" style="margin-top:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="margin:0">客户账号密码管理</h3><div style="display:flex;gap:6px"><input id="acSearch" placeholder="搜索客户" style="font-size:12px;padding:4px 8px;border:1px solid var(--border);border-radius:4px;width:120px" oninput="renderAcctManager()"><button class="btn btn-outline btn-xs" onclick="pasteAcctImport()">粘贴导入</button><button class="btn btn-outline btn-xs" onclick="copyAllAcct()">复制全部</button></div></div><div id="acCount" style="font-size:12px;color:var(--text2);margin-bottom:8px"></div><div class="table-wrap" id="acctManagerTable" style="max-height:400px"></div></div>'+
-'<div style="font-size:11px;color:var(--text2);margin-top:8px">点「粘贴导入」自动读取剪贴板并预览确认；支持Excel粘贴 / <code>客户名 系统:ERP 账号:admin 密码:pwd</code> / 空格逗号分隔</div>'+
+    '<div class="card" style="margin-top:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="margin:0">客户账号密码管理</h3><div style="display:flex;gap:6px"><input id="acSearch" placeholder="搜索客户" style="font-size:12px;padding:4px 8px;border:1px solid var(--border);border-radius:4px;width:120px" oninput="renderAcctManager()"><button class="btn btn-outline btn-xs" onclick="pasteAcctImport()">粘贴导入</button><button class="btn btn-outline btn-xs" onclick="copyAllAcct()">复制全部</button></div></div><div id="acCount" style="font-size:12px;color:var(--text2);margin-bottom:8px"></div><div class="table-wrap" id="acctManagerTable" style="max-height:400px"></div></div>'+
+'<div style="font-size:11px;color:var(--text2);margin-top:8px">点「粘贴导入」自动读取剪贴板并预览确认；支持Excel粘贴 / <code>客户名 系统:ERP 账号:admin 密码:pwd</code> / 空格逗号分隔 / <b>混合文本自动拆分</b>（如 <code>华吉达hjd123 abc456</code>：中文=客户名，前段=账号，后段=密码）</div>'+
 '<div class="card" style="margin-top:14px"><h3 style="margin-bottom:10px">OCR 图片识别设置</h3><div style="display:flex;gap:8px;align-items:center"><input id="ocrKeyInput" placeholder="ocr.space API Key（留空用默认）" style="flex:1;font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:4px" value="'+(appData.meta.ocrKey||'')+'"><button class="btn btn-primary btn-sm" onclick="saveOcrKey()">保存</button></div><div style="font-size:11px;color:var(--text2);margin-top:6px">当前使用：'+(appData.meta.ocrKey?appData.meta.ocrKey.slice(0,6)+'…（自定义）':'默认共享Key（可能限流）')+'</div></div>'
   renderTodos();
   renderAcctManager();
@@ -1096,6 +1093,22 @@ function siSplit(lt){
   else parts=lt.split(/\s+/);
   return parts.map(function(p){return p.trim()}).filter(Boolean);
 }
+// 智能拆分：中文=客户名，字母数字前段=账号、后段=密码（粘在一起也能拆）
+function siSmartAcct(lt){
+  var cn=(lt.match(/[\u4e00-\u9fa5（）()·]+/g)||[]).join('').trim();
+  var alnum=lt.match(/[A-Za-z0-9@._!#$%^&*\-]+/g)||[];
+  if(!cn||!alnum.length)return null;
+  var acc='',pwd='',rem='';
+  if(alnum.length===1){
+    var s=alnum[0];
+    if(s.length>=4){var mid=Math.ceil(s.length/2);acc=s.slice(0,mid);pwd=s.slice(mid);}
+    else acc=s;
+  }else{
+    acc=alnum[0];pwd=alnum[1];
+    if(alnum.length>2)rem=alnum.slice(2).join(' ');
+  }
+  return {cname:cn,account:acc,password:pwd,remark:rem};
+}
 // 解析为预览行（不入库）
 function siParse(kind,text){
   var rows=[];if(!text)return rows;
@@ -1113,12 +1126,19 @@ function siParse(kind,text){
         cname=(lt.match(/^([^\s\t:：]+)/)||[])[1]||'';
       }else{
         var parts=siSplit(lt);
-        if(parts.length<2){rows.push({ok:false,err:'列数不足',raw:lt,checked:false});return}
-        cname=parts[0];var rest=parts.slice(1);
-        if(rest.length===1){acc=rest[0]}
-        else if(rest.length===2){acc=rest[0];pwd=rest[1]}
-        else if(rest.length===3){sys=rest[0];acc=rest[1];pwd=rest[2]}
-        else{sys=rest[0];acc=rest[1];pwd=rest[2];rem=rest.slice(3).join(' ')}
+        var mixed=parts.length>0&&/[\u4e00-\u9fa5]/.test(parts[0])&&/[A-Za-z0-9]/.test(parts[0]);
+        if(parts.length<2||mixed){
+          // 中文和字母数字混在一起：智能拆分（中文=客户名，前段=账号，后段=密码）
+          var sm=siSmartAcct(lt);
+          if(!sm){rows.push({ok:false,err:'无法识别（需含客户名+账号密码）',raw:lt,checked:false});return}
+          cname=sm.cname;acc=sm.account;pwd=sm.password;rem=sm.remark;
+        }else{
+          cname=parts[0];var rest=parts.slice(1);
+          if(rest.length===1){acc=rest[0]}
+          else if(rest.length===2){acc=rest[0];pwd=rest[1]}
+          else if(rest.length===3){sys=rest[0];acc=rest[1];pwd=rest[2]}
+          else{sys=rest[0];acc=rest[1];pwd=rest[2];rem=rest.slice(3).join(' ')}
+        }
       }
       var c=findCustFuzzy(cname);
       rows.push({ok:!!c&&!!(acc||pwd),err:!c?'未匹配客户':(!acc&&!pwd?'无账号密码':''),cname:cname,cust:c,system:sys,account:acc,password:pwd,remark:rem,checked:!!c&&!!(acc||pwd)});
