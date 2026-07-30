@@ -99,6 +99,14 @@ tr:hover{background:#fafafa}
 .empty-state{text-align:center;padding:40px;color:var(--text2)}.empty-state .icon{font-size:48px;margin-bottom:12px}
 @media(max-width:768px){.issue-priority{grid-template-columns:1fr}.chart-row{grid-template-columns:1fr}.content{padding:10px}.header{padding:10px 14px}.tabs{padding:6px 8px}}
 .kpi-click{cursor:pointer;transition:transform .15s,box-shadow .15s}.kpi-click:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,.14)}
+
+.donut-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:8px}
+.donut-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px}
+.donut-title{font-size:13px;font-weight:600;margin-bottom:8px}
+.donut-wrap{position:relative;height:190px}
+#custFilterBar select{min-width:92px}
+.filter-bar .btn-xs{white-space:nowrap}
+#custFilterBar{flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -110,10 +118,26 @@ tr:hover{background:#fafafa}
 <div class="panel active" id="panel-overview"><div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding:8px 14px;background:#fff;border-radius:8px;box-shadow:var(--shadow)"><span style="font-size:14px;font-weight:600"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> 数据月份</span><button class="btn btn-outline btn-xs" onclick="shiftMonth(-1)">◀ 上月</button><span id="overviewMonthLabel" style="font-size:16px;font-weight:700;color:var(--primary);min-width:80px;text-align:center"></span><button class="btn btn-outline btn-xs" onclick="shiftMonth(1)">下月 ▶</button><span style="font-size:11px;color:var(--text2);margin-left:auto" id="overviewMonthNote"></span></div><div class="kpi-row" id="kpiOverview"></div><div class="chart-row"><div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="margin:0">待跟进问题 <span class="count" id="overviewIssueCount"></span></h3><button class="btn btn-outline btn-xs" onclick="document.querySelector('[data-panel=issues]').click()">全部 →</button></div><div class="table-wrap" style="max-height:300px" id="overviewIssues"></div></div><div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="margin:0">待办事项 <span class="count" id="overviewTodoCount"></span></h3><button class="btn btn-outline btn-xs" onclick="document.querySelector('[data-panel=me]').click()">个人中心 →</button></div><div class="table-wrap" style="max-height:300px" id="overviewTodos"></div></div></div><div class="chart-row"><div class="card"><h3><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6v16l7-3 8 3 7-3V3l-7 3-8-3-7 3z"/><path d="M8 3v15M16 6v15"/></svg> 省份 TOP10</h3><div class="chart-wrap"><canvas id="chartProv"></canvas></div></div><div class="card"><h3><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9v6M15 7v10M21 11h-3M21 15h-6M3 13h6"/></svg> 专属客服 TOP10</h3><div class="chart-wrap"><canvas id="chartZKOverview"></canvas></div></div></div></div>
 
 <!-- 客户列表 -->
-<div class="panel" id="panel-customers"><div class="alert alert-info"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg> 点击客户名称进入<strong>客户画像</strong>；点击 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> 编辑基本信息；上传Excel更新时<strong>只更新时间与归属人员</strong>（客服/销售/运维/工程师），账号密码、备注等其余数据保持不变</div><div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="margin:0">客户列表 <span class="count" id="custCount"></span></h3><div style="display:flex;gap:6px"><button class="btn btn-outline btn-sm" onclick="document.getElementById('updateExcelInput').click()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> 更新(Excel)</button><input type="file" id="updateExcelInput" accept=".xlsx,.xls" style="display:none" onchange="updateFromExcel(this)"><button class="btn btn-outline btn-sm" onclick="openImportCustomerModal()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6a2 2 0 0 1 2 2v1h2a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2V4a2 2 0 0 1 2-2z"/></svg> 批量导入</button><button class="btn btn-primary btn-sm" onclick="openCustomerModal()">+ 新建</button></div></div><div class="filter-bar"><div style="display:flex;gap:4px;align-items:center"><input type="text" id="custSearch" placeholder="搜索客户..." style="flex:1"><button class="btn btn-primary btn-xs" onclick="renderCustomerTable()">搜索</button></div><div style="margin-top:6px"><span class="badge badge-gray" style="cursor:pointer;user-select:none" onclick="toggleFilterPanel()" id="filterToggle"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5M9 10.76V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4.76a2 2 0 0 0 .59 1.41l2.41 2.41a2 2 0 0 1 .59 1.42V18a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-1.59a2 2 0 0 1 .59-1.42l2.41-2.41a2 2 0 0 0 .59-1.41z"/></svg> 筛选 <span id="filterCount"></span> ▾</span><select id="custStatus" onchange="renderCustomerTable()" style="margin-left:8px;padding:3px 6px;font-size:11px;border:1px solid var(--border);border-radius:4px"><option value="">全部状态</option><option value="expiring">即将到期</option><option value="active">正常</option></select></div><div id="filterPanel" style="display:none;margin-top:6px;padding:8px 10px;background:#fafafa;border-radius:6px"><div style="font-size:11px;color:var(--text2);margin-bottom:4px">客服（多选）：</div><div id="custZKFilters" style="display:flex;gap:3px;flex-wrap:wrap;margin-bottom:6px"></div><div style="font-size:11px;color:var(--text2);margin-bottom:4px">销售（多选）：</div><div id="custJLFilters" style="display:flex;gap:3px;flex-wrap:wrap"></div></div></div><div class="table-wrap large" id="custTable"></div></div></div>
+<div class="panel" id="panel-customers"><div class="alert alert-info"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg> 点击客户名称进入<strong>客户画像</strong>；点击 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> 编辑基本信息；上传Excel更新时<strong>只更新时间与归属人员</strong>（客服/销售/运维/工程师），账号密码、备注等其余数据保持不变</div><div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="margin:0">客户列表 <span class="count" id="custCount"></span></h3><div style="display:flex;gap:6px"><button class="btn btn-outline btn-sm" onclick="document.getElementById('updateExcelInput').click()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> 更新(Excel)</button><input type="file" id="updateExcelInput" accept=".xlsx,.xls" style="display:none" onchange="updateFromExcel(this)"><button class="btn btn-outline btn-sm" onclick="openImportCustomerModal()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6a2 2 0 0 1 2 2v1h2a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2V4a2 2 0 0 1 2-2z"/></svg> 批量导入</button><button class="btn btn-primary btn-sm" onclick="openCustomerModal()">+ 新建</button></div></div><div class="filter-bar" id="custFilterBar">
+  <input type="text" id="custSearch" placeholder="搜索客户名称…" oninput="custLiveSearch()" style="flex:1;min-width:150px">
+  <select id="custStatus" onchange="renderCustomerTable()" title="状态"><option value="">全部状态</option><option value="active">正常</option><option value="expiring">即将到期</option><option value="expired">已过期</option></select>
+  <select id="custZK" onchange="renderCustomerTable()" title="专属客服"><option value="">专属客服</option></select>
+  <select id="custJL" onchange="renderCustomerTable()" title="销售"><option value="">销售</option></select>
+  <select id="custYW" onchange="renderCustomerTable()" title="运维"><option value="">运维</option></select>
+  <select id="custEngineer" onchange="renderCustomerTable()" title="工程师"><option value="">工程师</option></select>
+  <select id="custProv" onchange="renderCustomerTable()" title="省份"><option value="">省份</option></select>
+  <select id="custEntType" onchange="renderCustomerTable()" title="企业类型"><option value="">企业类型</option></select>
+  <select id="custPayType" onchange="renderCustomerTable()" title="缴费类型"><option value="">缴费类型</option></select>
+  <select id="custProd" onchange="renderCustomerTable()" title="增值产品"><option value="">增值产品</option></select>
+  <select id="custAcct" onchange="renderCustomerTable()" title="账号状态"><option value="">账号状态</option><option value="yes">有账号</option><option value="no">无账号</option></select>
+  <select id="custChain" onchange="renderCustomerTable()" title="连锁属性"><option value="">连锁属性</option><option value="yes">连锁</option><option value="no">单店/其他</option></select>
+  <span id="custFilterCount" style="font-size:12px;color:var(--text2);white-space:nowrap"></span>
+  <button class="btn btn-outline btn-xs" id="custClearBtn" style="display:none" onclick="clearCustFilters()">清空筛选</button>
+</div>
+<div class="table-wrap large" id="custTable"></div></div></div>
 
 <!-- 客户画像 -->
-<div class="panel" id="panel-profile"><div class="alert alert-info"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg> 在客户列表中<strong>点击客户名称</strong>即可查看画像，也可在此搜索。</div><div class="filter-bar"><input type="text" id="profileSearch" placeholder="搜索客户名称..." oninput="renderProfileSearch()" style="width:300px"><span id="profileSearchCount" style="font-size:12px;color:var(--text2)"></span></div><div class="table-wrap" id="profileSearchResults" style="margin-bottom:14px;display:none"></div><div id="profileContent"><div class="empty-state"><div class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div><p>请搜索并选择一个客户查看画像</p></div></div></div>
+<div class="panel" id="panel-profile"><div class="alert alert-info"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg> 在客户列表中<strong>点击客户名称</strong>即可查看画像，也可在此搜索。</div><div class="filter-bar"><input type="text" id="profileSearch" placeholder="搜索客户名称..." oninput="renderProfileSearch()" style="width:300px"><span id="profileSearchCount" style="font-size:12px;color:var(--text2)"></span></div><div class="table-wrap" id="profileSearchResults" style="margin-bottom:14px;display:none"></div><div id="profileOverview"></div><div id="profileContent" style="display:none"></div></div>
 
 <!-- 问题跟进 -->
 <div class="panel" id="panel-issues">
@@ -488,29 +512,124 @@ function renderOverview(){
 }
 
 // ===== 客户列表 =====
-let selectedZKs=[],selectedJLs=[];
+// ===== 客户列表筛选状态 =====
+let custSearchTimer=null;
+function custListFields(){
+  const cs=activeCustomers();
+  const uniq=(f)=>[...new Set(cs.map(f))].filter(Boolean).sort();
+  return {
+    zk:uniq(c=>c.zk), jl:uniq(c=>c.jl), yw:uniq(c=>c.yw), eng:uniq(c=>c.engineer),
+    prov:uniq(c=>c.prov), ent:uniq(c=>c.entType), pay:uniq(c=>c.payType),
+    prod:[...new Set(cs.flatMap(c=>(c.products||'').split(/[,，、]/).map(p=>p.trim()).filter(Boolean)))].sort()
+  };
+}
+function fillSelect(id,vals,allLabel){
+  const el=document.getElementById(id); if(!el)return;
+  el.innerHTML='<option value="">'+allLabel+'</option>'+vals.map(v=>'<option value="'+v.replace(/"/g,'&quot;')+'">'+v+'</option>').join('');
+}
 function renderCustomers(){
-  document.getElementById('customerList').innerHTML=cn().map(n=>'<option value="'+n+'">').join('');
-  // 多选标签
-  const zks=zl(),jls=jl();
-  document.getElementById('custZKFilters').innerHTML=zks.map(zk=>'<span class="badge '+(selectedZKs.includes(zk)?'badge-blue':'badge-gray')+'" style="cursor:pointer;user-select:none" onclick="toggleZK(\''+zk.replace(/'/g,"\\'")+'\')">'+zk+'</span>').join('');
-  document.getElementById('custJLFilters').innerHTML=jls.map(jl=>'<span class="badge '+(selectedJLs.includes(jl)?'badge-blue':'badge-gray')+'" style="cursor:pointer;user-select:none" onclick="toggleJL(\''+jl.replace(/'/g,"\\'")+'\')">'+jl+'</span>').join('');
-  updateFilterCount();
+  const f=custListFields();
+  fillSelect('custZK',f.zk,'专属客服');
+  fillSelect('custJL',f.jl,'销售');
+  fillSelect('custYW',f.yw,'运维');
+  fillSelect('custEngineer',f.eng,'工程师');
+  fillSelect('custProv',f.prov,'省份');
+  fillSelect('custEntType',f.ent,'企业类型');
+  fillSelect('custPayType',f.pay,'缴费类型');
+  fillSelect('custProd',f.prod,'增值产品');
   renderCustomerTable();
 }
-function toggleZK(zk){if(selectedZKs.includes(zk))selectedZKs=selectedZKs.filter(x=>x!==zk);else selectedZKs.push(zk);renderCustomers()}
-function toggleJL(jl){if(selectedJLs.includes(jl))selectedJLs=selectedJLs.filter(x=>x!==jl);else selectedJLs.push(jl);renderCustomers()}
-function toggleFilterPanel(){const p=document.getElementById('filterPanel');const t=document.getElementById('filterToggle');const isHidden=p.style.display==='none';p.style.display=isHidden?'block':'none';t.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5M9 10.76V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4.76a2 2 0 0 0 .59 1.41l2.41 2.41a2 2 0 0 1 .59 1.42V18a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-1.59a2 2 0 0 1 .59-1.42l2.41-2.41a2 2 0 0 0 .59-1.41z"/></svg> 筛选 <span id="filterCount"></span> '+(isHidden?'▴':'▾');updateFilterCount()}
-function updateFilterCount(){const n=selectedZKs.length+selectedJLs.length;const el=document.getElementById('filterCount');if(el)el.textContent=n>0?'('+n+')':''}
+function custLiveSearch(){clearTimeout(custSearchTimer);custSearchTimer=setTimeout(renderCustomerTable,160)}
+function clearCustFilters(){
+  ['custSearch','custZK','custJL','custYW','custEngineer','custProv','custEntType','custPayType','custProd','custAcct','custChain','custStatus'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''});
+  renderCustomerTable();
+}
+function activeFilterCount(){
+  let n=0;['custZK','custJL','custYW','custEngineer','custProv','custEntType','custPayType','custProd','custAcct','custChain','custStatus'].forEach(id=>{const e=document.getElementById(id);if(e&&e.value)n++});
+  const s=document.getElementById('custSearch');if(s&&s.value.trim())n++;
+  return n;
+}
 function renderCustomerTable(){
-  const s=(document.getElementById('custSearch')?.value||'').toLowerCase(),st=document.getElementById('custStatus')?.value||'';
-  let f=activeCustomers().filter(c=>{if(s&&!c.name.toLowerCase().includes(s))return false;if(selectedZKs.length>0&&!selectedZKs.includes(c.zk))return false;if(selectedJLs.length>0&&!selectedJLs.includes(c.jl))return false;if(st==='expiring'&&!c.expiring60)return false;if(st==='active'&&c.expiring60)return false;return true});
+  const s=(document.getElementById('custSearch')?.value||'').toLowerCase();
+  const st=document.getElementById('custStatus')?.value||'';
+  const zk=document.getElementById('custZK')?.value||'';
+  const jl=document.getElementById('custJL')?.value||'';
+  const yw=document.getElementById('custYW')?.value||'';
+  const eng=document.getElementById('custEngineer')?.value||'';
+  const prov=document.getElementById('custProv')?.value||'';
+  const ent=document.getElementById('custEntType')?.value||'';
+  const pay=document.getElementById('custPayType')?.value||'';
+  const pr=document.getElementById('custProd')?.value||'';
+  const ac=document.getElementById('custAcct')?.value||'';
+  const ch=document.getElementById('custChain')?.value||'';
+  let base=(st==='expired')?appData.customers.filter(c=>c.expired||(c.daysLeft!=null&&c.daysLeft<0)):activeCustomers();
+  let f=base.filter(c=>{
+    if(s&&!c.name.toLowerCase().includes(s))return false;
+    if(st==='expiring'&&!c.expiring60)return false;
+    if(st==='active'&&c.expiring60)return false;
+    if(zk&&c.zk!==zk)return false;
+    if(jl&&c.jl!==jl)return false;
+    if(yw&&c.yw!==yw)return false;
+    if(eng&&c.engineer!==eng)return false;
+    if(prov&&c.prov!==prov)return false;
+    if(ent&&c.entType!==ent)return false;
+    if(pay&&c.payType!==pay)return false;
+    if(pr){const ps=(c.products||'').split(/[,，、]/).map(p=>p.trim());if(!ps.includes(pr))return false;}
+    if(ac){const has=(c.accounts&&c.accounts.length>0)||(appData.freeAccounts&&appData.freeAccounts.some(a=>a.name===c.name));if(ac==='yes'&&!has)return false;if(ac==='no'&&has)return false;}
+    if(ch){const isChain=parseInt(c.chainCount||'0')>0;if(ch==='yes'&&!isChain)return false;if(ch==='no'&&isChain)return false;}
+    return true;
+  });
+  const fc=activeFilterCount();
+  const fcEl=document.getElementById('custFilterCount');if(fcEl)fcEl.textContent=fc>0?('已筛选 '+fc+' 项'):'';
+  const clr=document.getElementById('custClearBtn');if(clr)clr.style.display=fc>0?'inline-block':'none';
   document.getElementById('custCount').textContent='共 '+f.length+' 条';
+  if(f.length===0){document.getElementById('custTable').innerHTML='<div class="empty-state"><div class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></div><p>没有符合条件的客户，试试减少筛选条件</p></div>';return;}
   document.getElementById('custTable').innerHTML='<table><thead><tr><th>客户名称</th><th>省份</th><th>客服</th><th>销售</th><th>运维</th><th>产品</th><th>失效</th><th>剩余</th><th>操作</th></tr></thead><tbody>'+f.map(c=>'<tr><td><strong class="clickable-row" onclick="showProfile(\''+c._uid+'\')" style="color:var(--primary);cursor:pointer;text-decoration:underline">'+c.name+'</strong></td><td>'+(c.prov||'')+' '+(c.area||'')+'</td><td>'+(c.zk||'')+'</td><td>'+(c.jl||'')+'</td><td>'+(c.yw||'')+'</td><td style="font-size:11px">'+(c.products||'-')+'</td><td>'+fmtDate(c.expDate)+'</td><td>'+daysBadge(c.daysLeft)+'</td><td><button class="btn btn-outline btn-xs" onclick="editCustomer(\''+c._uid+'\')" title="编辑详细信息"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button><button class="btn btn-outline btn-xs" style="color:var(--danger);margin-left:3px" onclick="deleteCustomer(\''+c._uid+'\')">×</button></td></tr>').join('')+'</tbody></table>';
 }
 
+
 // ===== 客户画像 =====
-function renderProfile(){document.getElementById('profileSearch').value='';document.getElementById('profileSearchResults').style.display='none';document.getElementById('profileContent').innerHTML='<div class="empty-state"><div class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div><p>请搜索并选择一个客户查看画像</p></div>'}
+const PIE_COLORS=['#5b6cff','#52c41a','#faad14','#ff4d4f','#13c2c2','#eb2f96','#fa8c16','#a0d911','#2f54eb','#722ed1','#36cfc9','#ff7875'];
+function renderProfile(){
+  document.getElementById('profileOverview').style.display='block';
+  document.getElementById('profileContent').style.display='none';
+  document.getElementById('profileSearch').value='';
+  document.getElementById('profileSearchResults').style.display='none';
+  renderProfileOverview();
+}
+function toArr(map){return Object.entries(map).sort((a,b)=>b[1]-a[1]).map(([k,v],i)=>({label:k,value:v,color:PIE_COLORS[i%PIE_COLORS.length]}))}
+function topMerge(map,n){const es=Object.entries(map).sort((a,b)=>b[1]-a[1]);const top=es.slice(0,n).map(([k,v],i)=>({label:k,value:v,color:PIE_COLORS[i%PIE_COLORS.length]}));const rest=es.slice(n).reduce((s,e)=>s+e[1],0);if(rest>0)top.push({label:'其他',value:rest,color:'#bfbfbf'});return top}
+function drawDonut(canvasId,legendId,items,total){
+  dc(canvasId);
+  const ctx=document.getElementById(canvasId);if(!ctx)return;
+  charts[canvasId]=new Chart(ctx,{type:'doughnut',data:{labels:items.map(i=>i.label),datasets:[{data:items.map(i=>i.value),backgroundColor:items.map(i=>i.color),borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){const v=c.parsed;const p=total?Math.round(v/total*100):0;return c.label+': '+v+' ('+p+'%)';}}}}}});
+  const lg=document.getElementById(legendId);if(lg){lg.innerHTML='<div style="display:flex;flex-direction:column;gap:4px;margin-top:10px;font-size:12px">'+items.map(i=>{const p=total?Math.round(i.value/total*100):0;return '<div style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:3px;background:'+i.color+';display:inline-block;flex:none"></span><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+i.label+'</span><span style="color:var(--text2)">'+i.value+'</span><span style="font-weight:600;min-width:42px;text-align:right">'+p+'%</span></div>'}).join('')+'</div>'}
+}
+function renderProfileOverview(){
+  const cs=appData.customers;
+  const total=cs.length||1;
+  const riskCnt={normal:0,exp:0,over:0};
+  cs.forEach(c=>{const over=c.expired||(c.daysLeft!=null&&c.daysLeft<0);if(over)riskCnt.over++;else if(c.expiring60)riskCnt.exp++;else riskCnt.normal++});
+  const entMap={},payMap={},zkMap={};let acctYes=0,chainYes=0;
+  cs.forEach(c=>{if(c.entType)entMap[c.entType]=(entMap[c.entType]||0)+1;if(c.payType)payMap[c.payType]=(payMap[c.payType]||0)+1;if(c.zk)zkMap[c.zk]=(zkMap[c.zk]||0)+1;const has=(c.accounts&&c.accounts.length>0)||(appData.freeAccounts&&appData.freeAccounts.some(a=>a.name===c.name));if(has)acctYes++;if(parseInt(c.chainCount||'0')>0)chainYes++});
+  const kpi='<div class="kpi-row" style="margin-bottom:14px"><div class="kpi-card"><div class="label">客户总数</div><div class="value">'+cs.length+'</div></div><div class="kpi-card"><div class="label" style="color:#d46b08">即将到期</div><div class="value" style="color:#d46b08">'+riskCnt.exp+'</div></div><div class="kpi-card"><div class="label" style="color:var(--danger)">已过期</div><div class="value" style="color:var(--danger)">'+riskCnt.over+'</div></div><div class="kpi-card"><div class="label" style="color:var(--success)">已配账号</div><div class="value" style="color:var(--success)">'+acctYes+'</div></div><div class="kpi-card"><div class="label">连锁客户</div><div class="value">'+chainYes+'</div></div></div>';
+  const donut=function(title,canvasId,legendId){return '<div class="donut-card"><div class="donut-title">'+title+'</div><div class="donut-wrap"><canvas id="'+canvasId+'"></canvas></div><div id="'+legendId+'"></div></div>'};
+  let grid='<div class="donut-grid">';
+  grid+=donut('到期风险分布','chartRisk','lgRisk');
+  grid+=donut('企业类型分布','chartEnt','lgEnt');
+  grid+=donut('缴费类型分布','chartPay','lgPay');
+  grid+=donut('账号覆盖','chartAcct','lgAcct');
+  grid+=donut('连锁属性','chartChain','lgChain');
+  grid+=donut('专属客服分布','chartZKPie','lgZKPie');
+  grid+='</div>';
+  document.getElementById('profileOverview').innerHTML=kpi+'<h3 style="margin:6px 0 2px">整体客户画像（按占比）</h3><p style="font-size:12px;color:var(--text2);margin:0 0 6px">点击左侧「客户列表」里的客户名，可查看单个客户的详细画像</p>'+grid;
+  drawDonut('chartRisk','lgRisk',[{label:'正常(>60天)',value:riskCnt.normal,color:'#52c41a'},{label:'即将到期(≤60天)',value:riskCnt.exp,color:'#faad14'},{label:'已过期',value:riskCnt.over,color:'#ff4d4f'}],cs.length);
+  drawDonut('chartEnt','lgEnt',toArr(entMap),cs.length);
+  drawDonut('chartPay','lgPay',toArr(payMap),cs.length);
+  drawDonut('chartAcct','lgAcct',[{label:'已配账号',value:acctYes,color:'#5b6cff'},{label:'未配账号',value:cs.length-acctYes,color:'#bfbfbf'}],cs.length);
+  drawDonut('chartChain','lgChain',[{label:'连锁',value:chainYes,color:'#13c2c2'},{label:'单店/其他',value:cs.length-chainYes,color:'#bfbfbf'}],cs.length);
+  drawDonut('chartZKPie','lgZKPie',topMerge(zkMap,6),cs.length);
+}
 function renderProfileSearch(){
   const s=document.getElementById('profileSearch').value.toLowerCase();if(!s){document.getElementById('profileSearchResults').style.display='none';return}
   const f=activeCustomers().filter(c=>c.name.toLowerCase().includes(s)).slice(0,15);
@@ -522,6 +641,7 @@ function showProfile(uid){
   const c=appData.customers.find(x=>x._uid===uid);if(!c)return;
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
   document.querySelector('[data-panel="profile"]').classList.add('active');document.getElementById('panel-profile').classList.add('active');
+  document.getElementById('profileOverview').style.display='none';document.getElementById('profileContent').style.display='block';
 
   // === 自动生成服务画像摘要 ===
   let riskLevel='green', riskLabel='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg> 正常', riskDetail='';
@@ -573,7 +693,7 @@ function showProfile(uid){
     (c.serviceNote?'<tr><td style="color:var(--text2);padding:6px 10px">服务备注</td><td colspan="3" style="padding:6px 10px;font-size:12px;color:var(--text2)">'+c.serviceNote+'</td></tr>':'')+
     '</tbody></table></div>';
 
-  document.getElementById('profileContent').innerHTML=summaryHTML+infoHTML;
+  document.getElementById('profileContent').innerHTML='<div style="margin-bottom:10px"><button class="btn btn-outline btn-sm" onclick="renderProfile()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> 返回整体画像</button></div>'+summaryHTML+infoHTML;
 }
 
 // 客户编辑
