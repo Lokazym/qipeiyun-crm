@@ -161,7 +161,7 @@ tr:hover{background:#fafafa}
 <p style="margin-top:12px"><strong>👥 客户列表 / Excel更新</strong><br>点客户名进入画像，点 ✏️ 编辑详情。<strong>上传Excel更新时只更新「时间」和「归属人员」</strong>（专属客服/销售/运维/工程师/失效时间/缴费时间等），账号密码、服务备注等其余数据一律保留；Excel中的新客户自动新增。</p>
 <p style="margin-top:12px"><strong>🔔 问题跟进</strong><br>在Excel/微信里复制内容后点<strong>「一键粘贴导入」</strong>，自动读取剪贴板并弹出<strong>预览表</strong>——每行显示匹配客户和状态，可勾选、可直接改客户名，点「确认导入」完成。截图直接 <strong>Ctrl+V</strong> 自动OCR进同一预览。表格内可直接编辑。</p>
 <p style="margin-top:12px"><strong>🎯 业绩目标（个人中心）</strong><br>月度目标<strong>只需设置一次，自动同步到全年12个月</strong>（点「编辑业绩」填统一目标，或在明细表点任意月份的目标数字修改）。已完成金额逐月各自填写，年度目标 = 月目标 × 12 自动合计。</p>
-<p style="margin-top:12px"><strong>🔑 账号密码管理（个人中心）</strong><br>复制好内容点「粘贴导入」，自动读剪贴板并弹出<strong>预览表</strong>确认后导入。支持Excel表格粘贴（客户名/系统/账号/密码/备注）、标签式（账号:xx 密码:xx）、空格/逗号分隔，以及<strong>混合文本智能拆分</strong>——如「华吉达hjd123 abc456」自动识别：中文=客户名、字母数字前段=账号、后段=密码（连在一起的也能对半拆）。客户名模糊匹配（未匹配的行可在预览里直接改名修复）；重复账号自动更新密码不重复添加。每行支持一键复制。</p>
+<p style="margin-top:12px"><strong>🔑 账号密码管理（个人中心）</strong><br>复制好内容点「粘贴导入」，自动读剪贴板并弹出<strong>预览表</strong>确认后导入。支持Excel表格粘贴（客户名/系统/账号/密码/备注）、标签式（账号:xx 密码:xx）、空格/逗号分隔，以及<strong>混合文本智能拆分</strong>——如「华吉达hjd123 abc456」自动识别：中文=客户名、字母数字前段=账号、后段=密码（连在一起的也能对半拆）。客户名模糊匹配，<strong>但不强制匹配</strong>——匹配不上的行也照样导入，按你填写的名称存为「独立账号」（表中浅灰底行，名称可直接编辑），一样支持搜索/复制/删除；重复账号自动更新密码不重复添加。每行支持一键复制。</p>
 <p style="margin-top:12px"><strong>👤 个人中心布局</strong><br>待办事项已置顶（打开个人中心第一眼就是待办）；个人信息栏已移除。</p>
 <p style="margin-top:12px"><strong>📷 OCR识别设置（个人中心）</strong><br>图片识别默认用共享Key，如识别失败可在个人中心「OCR图片识别设置」填入自己的 ocr.space 免费Key。</p>
 <p style="margin-top:12px"><strong>🛟 数据安全</strong><br>数据加密存储于云端仓库 + 浏览器本地缓存双保险。右上角「更多」菜单可随时一键备份、导出JSON。</p>
@@ -694,7 +694,7 @@ function renderMe(){
     '<div style="padding:12px;background:#fafafa;border-radius:8px"><div style="color:var(--text2);font-size:11px;margin-bottom:4px">60天内到期</div><div style="font-size:18px;font-weight:600;color:#d46b08">'+activeCustomers().filter(c=>c.expiring60).length+'</div></div>'+
         '</div></div>'+
     '<div class="card" style="margin-top:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="margin:0">客户账号密码管理</h3><div style="display:flex;gap:6px"><input id="acSearch" placeholder="搜索客户" style="font-size:12px;padding:4px 8px;border:1px solid var(--border);border-radius:4px;width:120px" oninput="renderAcctManager()"><button class="btn btn-outline btn-xs" onclick="pasteAcctImport()">粘贴导入</button><button class="btn btn-outline btn-xs" onclick="copyAllAcct()">复制全部</button></div></div><div id="acCount" style="font-size:12px;color:var(--text2);margin-bottom:8px"></div><div class="table-wrap" id="acctManagerTable" style="max-height:400px"></div></div>'+
-'<div style="font-size:11px;color:var(--text2);margin-top:8px">点「粘贴导入」自动读取剪贴板并预览确认；支持Excel粘贴 / <code>客户名 系统:ERP 账号:admin 密码:pwd</code> / 空格逗号分隔 / <b>混合文本自动拆分</b>（如 <code>华吉达hjd123 abc456</code>：中文=客户名，前段=账号，后段=密码）</div>'+
+'<div style="font-size:11px;color:var(--text2);margin-top:8px">点「粘贴导入」自动读取剪贴板并预览确认；支持Excel粘贴 / <code>客户名 系统:ERP 账号:admin 密码:pwd</code> / 空格逗号分隔 / <b>混合文本自动拆分</b>（如 <code>华吉达hjd123 abc456</code>：中文=客户名，前段=账号，后段=密码）。<b>不要求匹配客户</b>——匹配不上的按填写名称直接导入为独立账号，同样可搜索/编辑/复制</div>'+
 '<div class="card" style="margin-top:14px"><h3 style="margin-bottom:10px">OCR 图片识别设置</h3><div style="display:flex;gap:8px;align-items:center"><input id="ocrKeyInput" placeholder="ocr.space API Key（留空用默认）" style="flex:1;font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:4px" value="'+(appData.meta.ocrKey||'')+'"><button class="btn btn-primary btn-sm" onclick="saveOcrKey()">保存</button></div><div style="font-size:11px;color:var(--text2);margin-top:6px">当前使用：'+(appData.meta.ocrKey?appData.meta.ocrKey.slice(0,6)+'…（自定义）':'默认共享Key（可能限流）')+'</div></div>'
   renderTodos();
   renderAcctManager();
@@ -972,7 +972,7 @@ function copyTextRaw(t){
 }
 function fallbackCopy(t){var ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('已复制');}catch(e){toast('复制失败');}document.body.removeChild(ta);}
 function copyText(uid,idx){var c=appData.customers.find(function(x){return x._uid===uid});if(!c||!c.accounts||!c.accounts[idx])return;var a=c.accounts[idx];var t='系统:'+(a.system||'')+' 账号:'+(a.account||'')+' 密码:'+(a.password||'')+(a.remark?' 备注:'+a.remark:'');copyTextRaw(t);}
-function copyAllAcct(){var lines=[];activeCustomers().forEach(function(c){(c.accounts||[]).forEach(function(a){lines.push(c.name+' | 系统:'+(a.system||'')+' 账号:'+(a.account||'')+' 密码:'+(a.password||'')+(a.remark?' 备注:'+a.remark:''));});});if(!lines.length){toast('暂无账号');return;}copyTextRaw(lines.join('\n'));}
+function copyAllAcct(){var lines=[];activeCustomers().forEach(function(c){(c.accounts||[]).forEach(function(a){lines.push(c.name+' | 系统:'+(a.system||'')+' 账号:'+(a.account||'')+' 密码:'+(a.password||'')+(a.remark?' 备注:'+a.remark:''));});});(appData.freeAccounts||[]).forEach(function(a){lines.push((a.name||'未命名')+' | 系统:'+(a.system||'')+' 账号:'+(a.account||'')+' 密码:'+(a.password||'')+(a.remark?' 备注:'+a.remark:''));});if(!lines.length){toast('暂无账号');return;}copyTextRaw(lines.join('\n'));}
 function pasteAcctImport(){openSmartImport('acct');}
 function findCustFuzzy(name){
   if(!name)return null;var list=activeCustomers();
@@ -984,59 +984,30 @@ function findCustFuzzy(name){
   if(n2){c=list.find(function(x){var x2=strip(x.name);return x2&&(x2.indexOf(n2)>-1||n2.indexOf(x2)>-1)});if(c)return c;}
   return null;
 }
-function parseAcctText(t){
-  if(!t||!t.trim()){toast('内容为空');return}
-  var lines=t.split('\n').map(function(l){return l.replace(/\r/g,'')}).filter(function(l){return l.trim()});
-  var added=0,updated=0,fails=[];
-  lines.forEach(function(line,li){
-    var lt=line.trim();
-    if(li===0&&/(客户|名称)/.test(lt)&&/密码/.test(lt)&&/(账号|账户)/.test(lt)&&!/[0-9]{3,}/.test(lt))return; // 跳过表头
-    var sys='',acc='',pwd='',rem='',cname='';
-    var mAcc=lt.match(/(?:账号|账户|用户名)[:：]\s*(\S+)/),mPwd=lt.match(/密码[:：]\s*(\S+)/);
-    if(mAcc||mPwd){
-      acc=mAcc?mAcc[1]:'';pwd=mPwd?mPwd[1]:'';
-      sys=(lt.match(/系统[:：]\s*(\S+)/)||[])[1]||'';
-      rem=(lt.match(/备注[:：]\s*(.+)$/)||[])[1]||'';
-      cname=(lt.match(/^([^\s\t:：]+)/)||[])[1]||'';
-    }else{
-      var parts;
-      if(lt.indexOf('\t')>-1)parts=lt.split('\t');
-      else if(lt.indexOf('|')>-1)parts=lt.split('|');
-      else if(/[，,]/.test(lt))parts=lt.split(/[，,]/);
-      else parts=lt.split(/\s+/);
-      parts=parts.map(function(p){return p.trim()}).filter(Boolean);
-      if(parts.length<2){fails.push(lt.slice(0,25)+'（列数不足）');return}
-      cname=parts[0];var rest=parts.slice(1);
-      if(rest.length===1){acc=rest[0]}
-      else if(rest.length===2){acc=rest[0];pwd=rest[1]}
-      else if(rest.length===3){sys=rest[0];acc=rest[1];pwd=rest[2]}
-      else{sys=rest[0];acc=rest[1];pwd=rest[2];rem=rest.slice(3).join(' ')}
-    }
-    if(!cname){fails.push(lt.slice(0,25)+'（无客户名）');return}
-    var c=findCustFuzzy(cname);
-    if(!c){fails.push(cname+'（未匹配到客户）');return}
-    if(!acc&&!pwd){fails.push(cname+'（无账号密码）');return}
-    if(!c.accounts)c.accounts=[];
-    var exist=acc?c.accounts.find(function(a){return a.account===acc&&(a.system||'')===(sys||'')}):null;
-    if(exist){if(pwd)exist.password=pwd;if(rem)exist.remark=rem;updated++;}
-    else{c.accounts.push({system:sys,account:acc,password:pwd,remark:rem});added++;}
-  });
-  saveData();renderAcctManager();
-  var msg='✅ 新增 '+added+' 条，更新 '+updated+' 条'+(fails.length?'，失败 '+fails.length+' 条':'');
-  toast(msg);
-  var res=document.getElementById('acctImportResult');
-  if(res)res.innerHTML=msg+(fails.length?'<br><span style="color:var(--danger)">未导入：'+fails.join('；')+'</span>':'');
-}
 function updateAcct(uid,idx,field,value){var c=appData.customers.find(function(x){return x._uid===uid});if(!c||!c.accounts||!c.accounts[idx])return;c.accounts[idx][field]=value;saveData();}
 function deleteAcct(uid,idx){var c=appData.customers.find(function(x){return x._uid===uid});if(!c||!c.accounts)return;c.accounts.splice(idx,1);saveData();renderAcctManager();}
+function updateFreeAcct(idx,field,value){var fa=appData.freeAccounts;if(!fa||!fa[idx])return;fa[idx][field]=value;saveData();}
+function deleteFreeAcct(idx){var fa=appData.freeAccounts;if(!fa)return;fa.splice(idx,1);saveData();renderAcctManager();}
+function copyFreeAcct(idx){var fa=appData.freeAccounts;if(!fa||!fa[idx])return;var a=fa[idx];var t=(a.system?'系统:'+a.system+' ':'')+'账号:'+(a.account||'')+' 密码:'+(a.password||'')+(a.remark?' 备注:'+a.remark:'');copyTextRaw(t);}
 function renderAcctManager(){
   var s=(document.getElementById('acSearch')?document.getElementById('acSearch').value:'').toLowerCase();
   var list=activeCustomers().filter(function(c){if(!s)return true;return c.name.toLowerCase().indexOf(s)>-1;});
   var withAcct=list.filter(function(c){return c.accounts&&c.accounts.length>0;});
-  var el=document.getElementById('acCount');if(el)el.textContent='共'+list.length+'个客户，'+withAcct.length+'个有账号';
+  var freeList=(appData.freeAccounts||[]).map(function(a,i){a._fi=i;return a;}).filter(function(a){if(!s)return true;return (a.name||'').toLowerCase().indexOf(s)>-1;});
+  var el=document.getElementById('acCount');if(el)el.textContent='共'+list.length+'个客户，'+withAcct.length+'个有账号'+(freeList.length?('，独立账号'+freeList.length+'条'):'');
   var table=document.getElementById('acctManagerTable');if(!table)return;
-  if(withAcct.length===0){table.innerHTML='<div class="empty-state" style="padding:20px"><p>暂无账号密码记录。点击「粘贴导入」批量添加，或上方搜索客户后用「图片识别」添加。</p></div>';return;}
+  if(withAcct.length===0&&freeList.length===0){table.innerHTML='<div class="empty-state" style="padding:20px"><p>暂无账号密码记录。点击「粘贴导入」批量添加，或上方搜索客户后用「图片识别」添加。</p></div>';return;}
   var rows='';
+  freeList.forEach(function(a){
+    var fi=a._fi;
+    rows+='<tr style="background:#fafafa"><td style="font-size:12px"><input value="'+(a.name||'').replace(/"/g,'&quot;')+'" onchange="updateFreeAcct('+fi+',\'name\',this.value)" style="width:95px;font-size:11px;border:1px solid transparent;background:transparent;font-weight:600"></td>'
+      +'<td><input value="'+(a.system||'')+'" onchange="updateFreeAcct('+fi+',\'system\',this.value)" style="width:55px;font-size:11px;border:1px solid transparent;background:transparent"></td>'
+      +'<td><input value="'+(a.account||'')+'" onchange="updateFreeAcct('+fi+',\'account\',this.value)" style="width:100%;font-size:11px;border:1px solid transparent;background:transparent"></td>'
+      +'<td><input value="'+(a.password||'')+'" onchange="updateFreeAcct('+fi+',\'password\',this.value)" style="width:100%;font-size:11px;border:1px solid transparent;background:transparent"></td>'
+      +'<td><input value="'+(a.remark||'')+'" onchange="updateFreeAcct('+fi+',\'remark\',this.value)" style="width:100%;font-size:11px;border:1px solid transparent;background:transparent"></td>'
+      +'<td><button class="btn btn-outline btn-xs" onclick="copyFreeAcct('+fi+')">复制</button></td>'
+      +'<td><button class="btn btn-outline btn-xs" style="color:var(--danger)" onclick="deleteFreeAcct('+fi+')">×</button></td></tr>';
+  });
   list.filter(function(c){return c.accounts&&c.accounts.length>0;}).forEach(function(c){
     c.accounts.forEach(function(a,ai){
       rows+='<tr><td style="font-size:12px">'+(ai===0?'<strong>'+c.name+'</strong>':'')+'</td>'
@@ -1141,7 +1112,7 @@ function siParse(kind,text){
         }
       }
       var c=findCustFuzzy(cname);
-      rows.push({ok:!!c&&!!(acc||pwd),err:!c?'未匹配客户':(!acc&&!pwd?'无账号密码':''),cname:cname,cust:c,system:sys,account:acc,password:pwd,remark:rem,checked:!!c&&!!(acc||pwd)});
+      rows.push({ok:!!(acc||pwd),err:(!acc&&!pwd?'无账号密码':''),warn:!c?'未匹配客户(按填写名称导入)':'',cname:cname,cust:c,system:sys,account:acc,password:pwd,remark:rem,checked:!!(acc||pwd)});
     }else{
       var parts=siSplit(lt);
       if(!parts.length)return;
@@ -1216,7 +1187,7 @@ function siRowCheck(i,v){if(window._siRows[i])window._siRows[i].checked=v;siUpda
 function siFixName(i,v){
   var r=window._siRows[i];if(!r)return;
   r.cname=v;r.cust=findCustFuzzy(v);
-  if(window._siKind==='acct'){r.err=!r.cust?'未匹配客户':(!r.account&&!r.password?'无账号密码':'');r.ok=!r.err;r.checked=!r.err;}
+  if(window._siKind==='acct'){r.err=(!r.account&&!r.password?'无账号密码':'');r.warn=!r.cust?'未匹配客户(按填写名称导入)':'';r.ok=!r.err;r.checked=!r.err;}
   else{r.warn=!r.cust?'未匹配客户(按新名称导入)':'';}
   siRender(window._siRows);
 }
@@ -1234,11 +1205,18 @@ function siConfirm(){
   var added=0,updated=0;
   rows.forEach(function(r,i){
     if(kind==='acct'){
-      var c=r.cust;if(!c)return;
-      if(!c.accounts)c.accounts=[];
-      var exist=r.account?c.accounts.find(function(a){return a.account===r.account&&(a.system||'')===(r.system||'')}):null;
-      if(exist){if(r.password)exist.password=r.password;if(r.remark)exist.remark=r.remark;updated++;}
-      else{c.accounts.push({system:r.system,account:r.account,password:r.password,remark:r.remark});added++;}
+      var c=r.cust;
+      if(c){
+        if(!c.accounts)c.accounts=[];
+        var exist=r.account?c.accounts.find(function(a){return a.account===r.account&&(a.system||'')===(r.system||'')}):null;
+        if(exist){if(r.password)exist.password=r.password;if(r.remark)exist.remark=r.remark;updated++;}
+        else{c.accounts.push({system:r.system,account:r.account,password:r.password,remark:r.remark});added++;}
+      }else{
+        if(!appData.freeAccounts)appData.freeAccounts=[];
+        var fx=r.account?appData.freeAccounts.find(function(a){return a.name===(r.cname||'')&&a.account===r.account&&(a.system||'')===(r.system||'')}):null;
+        if(fx){if(r.password)fx.password=r.password;if(r.remark)fx.remark=r.remark;updated++;}
+        else{appData.freeAccounts.push({name:r.cname||'未命名',system:r.system,account:r.account,password:r.password,remark:r.remark});added++;}
+      }
     }else{
       appData.issues.unshift({id:'iss_'+Date.now()+'_'+i,name:r.cust?r.cust.name:r.cname,type:r.type||'咨询',priority:r.priority||'medium',zk:r.zk||'',jl:'',exp:'',status:'pending',reason:r.reason||'',note:r.note||'',dl:null,fee:0,o7:0});added++;
     }
