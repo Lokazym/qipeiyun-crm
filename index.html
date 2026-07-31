@@ -238,7 +238,7 @@ tr:hover{background:#fafafa}
 
 <!-- 客户列表 -->
 
-<div class="panel" id="panel-customers"><div class="alert alert-info"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg> 点击客户名称进入<strong>客户画像</strong>；点击 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> 编辑基本信息；上传Excel更新时<strong>只更新时间与归属人员</strong>（客服/销售/运维/工程师），账号密码、备注等其余数据保持不变</div><div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="margin:0">客户列表 <span class="count" id="custCount"></span></h3><div style="display:flex;gap:6px"><button class="btn btn-outline btn-sm" onclick="document.getElementById('updateExcelInput').click()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> 更新(Excel)</button><input type="file" id="updateExcelInput" accept=".xlsx,.xls" style="display:none" onchange="updateFromExcel(this)"><button class="btn btn-outline btn-sm" onclick="openImportCustomerModal()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6a2 2 0 0 1 2 2v1h2a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2V4a2 2 0 0 1 2-2z"/></svg> 批量导入</button><button class="btn btn-primary btn-sm" onclick="openCustomerModal()">+ 新建</button></div></div><div class="filter-bar" id="custFilterBar">
+<div class="panel" id="panel-customers"><div class="alert alert-info"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg> 点击客户名称进入<strong>客户画像</strong>；点击 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> 编辑基本信息；上传Excel更新时<strong>只更新时间与归属人员</strong>（客服/销售/运维/工程师），账号密码、备注等其余数据保持不变；点客户名进入画像可看<strong>价值评估</strong>，点 ✏️ 编辑可维护<strong>价值与客情（年消费 / 续费意向 / 客情 / 战略客户等）</strong>——用于高价值客户筛选与一键生成服务报告</div><div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="margin:0">客户列表 <span class="count" id="custCount"></span></h3><div style="display:flex;gap:6px"><button class="btn btn-outline btn-sm" onclick="document.getElementById('updateExcelInput').click()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> 更新(Excel)</button><input type="file" id="updateExcelInput" accept=".xlsx,.xls" style="display:none" onchange="updateFromExcel(this)"><button class="btn btn-outline btn-sm" onclick="openImportCustomerModal()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6a2 2 0 0 1 2 2v1h2a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2V4a2 2 0 0 1 2-2z"/></svg> 批量导入</button><button class="btn btn-primary btn-sm" onclick="openCustomerModal()">+ 新建</button></div></div><div class="filter-bar" id="custFilterBar">
 
   <input type="text" id="custSearch" placeholder="搜索客户名称…" oninput="custLiveSearch()" style="flex:1;min-width:150px">
 
@@ -263,6 +263,18 @@ tr:hover{background:#fafafa}
   <select id="custAcct" onchange="renderCustomerTable()" title="账号状态"><option value="">账号状态</option><option value="yes">有账号</option><option value="no">无账号</option></select>
 
   <select id="custChain" onchange="renderCustomerTable()" title="连锁属性"><option value="">连锁属性</option><option value="yes">连锁</option><option value="no">单店/其他</option></select>
+
+  <select id="custValue" onchange="renderCustomerTable()" title="价值等级"><option value="">价值等级</option><option value="S">S级(战略高价值)</option><option value="A">A级(高价值)</option><option value="B">B级(中价值)</option><option value="C">C级(潜力)</option><option value="HV">仅高价值(S+A)</option></select>
+
+  <select id="custRenew" onchange="renderCustomerTable()" title="续费意向"><option value="">续费意向</option><option value="高">高</option><option value="中">中</option><option value="低">低</option><option value="流失风险">流失风险</option></select>
+
+  <select id="custStrategic" onchange="renderCustomerTable()" title="战略客户"><option value="">战略客户</option><option value="是">是</option><option value="否">否</option></select>
+
+  <select id="custTenure" onchange="renderCustomerTable()" title="合作时长"><option value="">合作时长</option><option value="0-1">1年内</option><option value="1-3">1-3年</option><option value="3+">3年以上</option></select>
+
+  <select id="custSat" onchange="renderCustomerTable()" title="满意度"><option value="">满意度</option><option value="4">≥4分</option><option value="3">≥3分</option><option value="lt3"><3分</option></select>
+
+  <input type="number" id="custMinFee" placeholder="最低年消费" oninput="custLiveSearch()" title="最低年消费金额(元)" style="width:110px">
 
   <span id="custFilterCount" style="font-size:12px;color:var(--text2);white-space:nowrap"></span>
 
@@ -346,6 +358,15 @@ tr:hover{background:#fafafa}
 
 <div class="form-row"><div class="form-group" style="flex:2"><label>服务备注</label><textarea id="cmServiceNote" rows="2" placeholder="维护记录、特殊情况等" style="width:100%;font-size:13px;border:1px solid var(--border);border-radius:6px;padding:6px"></textarea></div></div>
 
+<div style="margin-top:10px;border-top:1px dashed var(--border);padding-top:12px">
+<div style="font-size:12px;color:var(--text2);margin-bottom:8px;font-weight:600">价值与客情（用于高价值客户筛选 & 服务报告）</div>
+<div class="form-row"><div class="form-group"><label>年消费金额(元)</label><input type="number" id="cmAnnualFee" placeholder="如 120000"></div><div class="form-group"><label>满意度评分(1-5)</label><input type="number" id="cmSatisfaction" min="0" max="5" step="0.1" placeholder="1-5"></div></div>
+<div class="form-row"><div class="form-group"><label>续费意向</label><select id="cmRenewIntent"><option value="">未评估</option><option value="高">高</option><option value="中">中</option><option value="低">低</option><option value="流失风险">流失风险</option></select></div><div class="form-group"><label>客情关系</label><select id="cmRelationship"><option value="">未评估</option><option value="强">强</option><option value="中">中</option><option value="弱">弱</option></select></div></div>
+<div class="form-row"><div class="form-group"><label>战略客户</label><select id="cmStrategic"><option value="否">否</option><option value="是">是</option></select></div><div class="form-group"><label>潜力等级</label><select id="cmPotential"><option value="">未评估</option><option value="高">高</option><option value="中">中</option><option value="低">低</option></select></div></div>
+<div class="form-row"><div class="form-group" style="flex:2"><label>主营品类</label><input id="cmMainCat" placeholder="如：易损件 / 油品 / 全车件"></div></div>
+<div class="form-row"><div class="form-group" style="flex:2"><label>服务报告备注</label><textarea id="cmSvcNote" rows="2" placeholder="维护记录、客户诉求、下次跟进重点等" style="width:100%;font-size:13px;border:1px solid var(--border);border-radius:6px;padding:6px"></textarea></div></div>
+</div>
+
 <div class="form-actions"><button class="btn btn-outline" onclick="closeModal('customerModal')">取消</button><button class="btn btn-primary" onclick="saveCustomer()">保存</button></div></div></div>
 
 
@@ -353,6 +374,8 @@ tr:hover{background:#fafafa}
 <div class="modal-overlay" id="importCustomerModal"><div class="modal"><h3>批量导入客户</h3><p style="font-size:12px;color:var(--text2);margin-bottom:10px">CSV：名称,省份,区域,客服,销售,工程师,缴费类型,功能包,失效日期,企业类型,用户数</p><textarea id="importCustText" rows="6" style="width:100%;font-size:12px;border:1px solid var(--border);border-radius:6px;padding:8px"></textarea><div class="form-actions"><button class="btn btn-outline" onclick="closeModal('importCustomerModal')">取消</button><button class="btn btn-primary" onclick="importCustomers()">导入</button></div></div></div>
 
 
+
+<div class="modal-overlay" id="svcReportModal"><div class="modal large" style="max-width:720px"><h3>📄 服务报告</h3><div style="margin-bottom:10px;display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-outline btn-sm" onclick="window.print()">🖨 打印</button><button class="btn btn-primary btn-sm" onclick="copyServiceReport()">📋 复制文本</button></div><div id="svcReportBody" style="max-height:65vh;overflow:auto"></div><div class="form-actions"><button class="btn btn-outline" onclick="closeModal('svcReportModal')">关闭</button></div></div></div>
 
 <div class="modal-overlay" id="importIssueModal"><div class="modal large"><h3>批量导入问题</h3><p style="font-size:12px;color:var(--text2);margin-bottom:10px">每行一个，CSV：客户名称,优先级(high/medium/low),问题描述,客服,销售,失效日期,备注</p><textarea id="importIssueText" rows="8" style="width:100%;font-size:12px;border:1px solid var(--border);border-radius:6px;padding:8px"></textarea><div class="form-actions"><button class="btn btn-outline" onclick="closeModal('importIssueModal')">取消</button><button class="btn btn-primary" onclick="importIssues()">导入</button></div></div></div>
 
@@ -906,6 +929,8 @@ if(c){
 
   const yw=g('运维人员');if(yw)c.yw=yw;
 
+  const af=g('年消费金额');if(af)c.annualFee=parseFloat(af)||0;
+
   upd++;
 
 }else{
@@ -1044,6 +1069,41 @@ function renderOverview(){
 
 // ===== 客户列表 =====
 
+// ===== 高价值客户评分模型 =====
+
+function buildValueContext(){
+  const cs=appData.customers;let maxFee=1,maxSize=1;
+  cs.forEach(c=>{const fee=parseFloat(c.annualFee)||0;if(fee>maxFee)maxFee=fee;const size=(parseInt(c.chainCount)||0)*15+(parseInt(c.accountCount||c.userCount)||1)*3;if(size>maxSize)maxSize=size});
+  return {maxFee,maxSize};
+}
+
+function vsAmount(c,ctx){const fee=parseFloat(c.annualFee)||0;if(fee<=0)return 0;return Math.min(100,Math.round(fee/ctx.maxFee*100));}
+function vsTenure(c){if(!c.openDate)return 0;const d=new Date(c.openDate);if(isNaN(d.getTime()))return 0;const months=(Date.now()-d.getTime())/2629746000;return Math.max(0,Math.min(100,Math.round(months/36*100)));}
+function vsActivity(c){const o=parseInt(c.orders7d)||0;return Math.min(100,o*2);}
+function vsProduct(c){const n=(c.products||'').split(/[,，、]/).map(p=>p.trim()).filter(Boolean).length;return Math.min(100,Math.round(n/5*100));}
+function vsScale(c,ctx){const size=(parseInt(c.chainCount)||0)*15+(parseInt(c.accountCount||c.userCount)||1)*3;if(size<=0)return 0;return Math.min(100,Math.round(size/ctx.maxSize*100));}
+function vsRenew(c){const m={'高':100,'中':65,'低':35,'流失风险':10};return c.renewIntent?(m[c.renewIntent]!=null?m[c.renewIntent]:50):50;}
+function vsRelation(c){const sat=parseFloat(c.satisfaction)||0;const satC=sat>0?Math.min(100,sat/5*100):50;const rm={'强':100,'中':65,'弱':35};const relC=c.relationship?(rm[c.relationship]!=null?rm[c.relationship]:50):50;return Math.round((satC+relC)/2);}
+
+function valueScore(c,ctx){
+  ctx=ctx||buildValueContext();
+  const subs={amount:vsAmount(c,ctx),tenure:vsTenure(c),activity:vsActivity(c),product:vsProduct(c),scale:vsScale(c,ctx),renew:vsRenew(c),relation:vsRelation(c)};
+  let score=Math.round(subs.amount*0.30+subs.tenure*0.15+subs.activity*0.15+subs.product*0.12+subs.scale*0.13+subs.renew*0.10+subs.relation*0.05);
+  let tier;
+  if(c.strategic==='是')tier='S';
+  else if(score>=75)tier='S';
+  else if(score>=60)tier='A';
+  else if(score>=40)tier='B';
+  else tier='C';
+  return {score,tier,subs};
+}
+
+function valueTierName(t){return {S:'S级(战略高价值)',A:'A级(高价值)',B:'B级(中价值)',C:'C级(潜力/低)'}[t]||t;}
+function valueTierColor(t){return {S:'#722ed1',A:'#5b6cff',B:'#faad14',C:'#bfbfbf'}[t]||'#bfbfbf';}
+function valueBadge(tier,score){const col=valueTierColor(tier);return '<span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;color:#fff;background:'+col+'">'+tier+' '+(score||0)+'</span>';}
+function valueBar(label,score){const col=score>=75?'#722ed1':score>=60?'#5b6cff':score>=40?'#faad14':'#bfbfbf';return '<div style="display:flex;align-items:center;gap:8px;font-size:12px;margin:4px 0"><span style="width:84px;color:var(--text2);flex:none">'+label+'</span><span style="flex:1;height:8px;background:#f0f0f0;border-radius:5px;overflow:hidden"><span style="display:block;height:100%;width:'+score+'%;background:'+col+'"></span></span><span style="width:30px;text-align:right;flex:none">'+score+'</span></div>';}
+function valueTierTip(){return '权重：年消费30% · 合作时长15% · 活跃度15% · 产品渗透12% · 规模13% · 续费意向10% · 客情/满意度5%；战略客户保底S级';}
+
 // ===== 客户列表筛选状态 =====
 
 let custSearchTimer=null;
@@ -1102,7 +1162,7 @@ function custLiveSearch(){clearTimeout(custSearchTimer);custSearchTimer=setTimeo
 
 function clearCustFilters(){
 
-  ['custSearch','custZK','custJL','custYW','custEngineer','custProv','custEntType','custPayType','custProd','custAcct','custChain','custStatus'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''});
+  ['custSearch','custZK','custJL','custYW','custEngineer','custProv','custEntType','custPayType','custProd','custAcct','custChain','custStatus','custValue','custRenew','custStrategic','custTenure','custSat','custMinFee'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''});
 
   renderCustomerTable();
 
@@ -1110,7 +1170,7 @@ function clearCustFilters(){
 
 function activeFilterCount(){
 
-  let n=0;['custZK','custJL','custYW','custEngineer','custProv','custEntType','custPayType','custProd','custAcct','custChain','custStatus'].forEach(id=>{const e=document.getElementById(id);if(e&&e.value)n++});
+  let n=0;['custZK','custJL','custYW','custEngineer','custProv','custEntType','custPayType','custProd','custAcct','custChain','custStatus','custValue','custRenew','custStrategic','custTenure','custSat','custMinFee'].forEach(id=>{const e=document.getElementById(id);if(e&&e.value)n++});
 
   const s=document.getElementById('custSearch');if(s&&s.value.trim())n++;
 
@@ -1144,7 +1204,16 @@ function renderCustomerTable(){
 
   const ch=document.getElementById('custChain')?.value||'';
 
+  const val=document.getElementById('custValue')?.value||'';
+  const rn=document.getElementById('custRenew')?.value||'';
+  const stg=document.getElementById('custStrategic')?.value||'';
+  const tn=document.getElementById('custTenure')?.value||'';
+  const sat=document.getElementById('custSat')?.value||'';
+  const minFee=parseFloat(document.getElementById('custMinFee')?.value)||0;
+
   let base=(st==='expired')?appData.customers.filter(c=>c.expired||(c.daysLeft!=null&&c.daysLeft<0)):activeCustomers();
+
+  const vctx=buildValueContext();
 
   let f=base.filter(c=>{
 
@@ -1174,6 +1243,18 @@ function renderCustomerTable(){
 
     if(ch){const isChain=parseInt(c.chainCount||'0')>0;if(ch==='yes'&&!isChain)return false;if(ch==='no'&&isChain)return false;}
 
+    if(val){const vs=valueScore(c,vctx);const isHV=(vs.tier==='S'||vs.tier==='A');if(val==='HV'&&!isHV)return false;else if(val!=='HV'&&vs.tier!==val)return false;}
+
+    if(rn&&c.renewIntent!==rn)return false;
+
+    if(stg&&c.strategic!==stg)return false;
+
+    if(minFee>0&&(parseFloat(c.annualFee)||0)<minFee)return false;
+
+    if(tn){const months=vsTenure(c)/100*36;if(tn==='0-1'&&months>12)return false;if(tn==='1-3'&&(months<=12||months>36))return false;if(tn==='3+'&&months<=36)return false;}
+
+    if(sat){const sc=parseFloat(c.satisfaction)||0;if(sat==='4'&&sc<4)return false;if(sat==='3'&&sc<3)return false;if(sat==='lt3'&&sc>=3)return false;}
+
     return true;
 
   });
@@ -1188,7 +1269,7 @@ function renderCustomerTable(){
 
   if(f.length===0){document.getElementById('custTable').innerHTML='<div class="empty-state"><div class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></div><p>没有符合条件的客户，试试减少筛选条件</p></div>';return;}
 
-  document.getElementById('custTable').innerHTML='<table><thead><tr><th>客户名称</th><th>省份</th><th>客服</th><th>销售</th><th>运维</th><th>产品</th><th>失效</th><th>剩余</th><th>操作</th></tr></thead><tbody>'+f.map(c=>'<tr><td><strong class="clickable-row" onclick="showProfile(\''+c._uid+'\')" style="color:var(--primary);cursor:pointer;text-decoration:underline">'+c.name+'</strong></td><td>'+(c.prov||'')+' '+(c.area||'')+'</td><td>'+(c.zk||'')+'</td><td>'+(c.jl||'')+'</td><td>'+(c.yw||'')+'</td><td style="font-size:11px">'+(c.products||'-')+'</td><td>'+fmtDate(c.expDate)+'</td><td>'+daysBadge(c.daysLeft)+'</td><td><button class="btn btn-outline btn-xs" onclick="editCustomer(\''+c._uid+'\')" title="编辑详细信息"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button><button class="btn btn-outline btn-xs" style="color:var(--danger);margin-left:3px" onclick="deleteCustomer(\''+c._uid+'\')">×</button></td></tr>').join('')+'</tbody></table>';
+  document.getElementById('custTable').innerHTML='<table><thead><tr><th>客户名称</th><th>省份</th><th>客服</th><th>销售</th><th>运维</th><th>产品</th><th>失效</th><th>剩余</th><th>价值</th><th>年消费</th><th>操作</th></tr></thead><tbody>'+f.map(c=>{const vs=valueScore(c,vctx);return '<tr><td><strong class="clickable-row" onclick="showProfile(\''+c._uid+'\')" style="color:var(--primary);cursor:pointer;text-decoration:underline">'+c.name+'</strong></td><td>'+(c.prov||'')+' '+(c.area||'')+'</td><td>'+(c.zk||'')+'</td><td>'+(c.jl||'')+'</td><td>'+(c.yw||'')+'</td><td style="font-size:11px">'+(c.products||'-')+'</td><td>'+fmtDate(c.expDate)+'</td><td>'+daysBadge(c.daysLeft)+'</td><td>'+valueBadge(vs.tier,vs.score)+'</td><td>'+(c.annualFee?(c.annualFee/10000).toFixed(1)+'万':'-')+'</td><td><button class="btn btn-outline btn-xs" onclick="editCustomer(\''+c._uid+'\')" title="编辑详细信息"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button><button class="btn btn-outline btn-xs" style="color:var(--danger);margin-left:3px" onclick="deleteCustomer(\''+c._uid+'\')">×</button></td></tr>'}).join('')+'</tbody></table>';
 
 }
 
@@ -1232,53 +1313,54 @@ function drawDonut(canvasId,legendId,items,total){
 
 function renderProfileOverview(){
 
-  const cs=appData.customers;
+  const cs=appData.customers;const total=cs.length||1;const vctx=buildValueContext();
 
-  const total=cs.length||1;
-
+  const entMap={},renewMap={},relMap={},actMap={'高':0,'中':0,'低':0};const tierCnt={S:0,A:0,B:0,C:0};
   const riskCnt={normal:0,exp:0,over:0};
+  let feeSum=0,feeN=0,tenureSum=0,tenureN=0;
 
-  cs.forEach(c=>{const over=c.expired||(c.daysLeft!=null&&c.daysLeft<0);if(over)riskCnt.over++;else if(c.expiring60)riskCnt.exp++;else riskCnt.normal++});
+  cs.forEach(c=>{
+    const vs=valueScore(c,vctx);tierCnt[vs.tier]++;
+    const r=c.renewIntent||'未评估';renewMap[r]=(renewMap[r]||0)+1;
+    const rl=c.relationship||'未评估';relMap[rl]=(relMap[rl]||0)+1;
+    const o=parseInt(c.orders7d)||0;const a=o>=10?'高':(o>=1?'中':'低');actMap[a]++;
+    if(c.entType)entMap[c.entType]=(entMap[c.entType]||0)+1;
+    const over=c.expired||(c.daysLeft!=null&&c.daysLeft<0);if(over)riskCnt.over++;else if(c.expiring60)riskCnt.exp++;else riskCnt.normal++;
+    const f=parseFloat(c.annualFee)||0;if(f>0){feeSum+=f;feeN++}
+    if(c.openDate){const d=new Date(c.openDate);if(!isNaN(d.getTime())){tenureSum+=(Date.now()-d.getTime())/2629746000;tenureN++}}
+  });
 
-  const entMap={},payMap={},zkMap={};let acctYes=0,chainYes=0;
+  const hv=tierCnt.S+tierCnt.A;
+  const avgFee=feeN?Math.round(feeSum/feeN):0;
+  const avgTen=tenureN?(tenureSum/tenureN/12):0;
 
-  cs.forEach(c=>{if(c.entType)entMap[c.entType]=(entMap[c.entType]||0)+1;if(c.payType)payMap[c.payType]=(payMap[c.payType]||0)+1;if(c.zk)zkMap[c.zk]=(zkMap[c.zk]||0)+1;const has=(c.accounts&&c.accounts.length>0)||(appData.freeAccounts&&appData.freeAccounts.some(a=>a.name===c.name));if(has)acctYes++;if(parseInt(c.chainCount||'0')>0)chainYes++});
-
-  const kpi='<div class="kpi-row" style="margin-bottom:14px"><div class="kpi-card"><div class="label">客户总数</div><div class="value">'+cs.length+'</div></div><div class="kpi-card"><div class="label" style="color:#d46b08">即将到期</div><div class="value" style="color:#d46b08">'+riskCnt.exp+'</div></div><div class="kpi-card"><div class="label" style="color:var(--danger)">已过期</div><div class="value" style="color:var(--danger)">'+riskCnt.over+'</div></div><div class="kpi-card"><div class="label" style="color:var(--success)">已配账号</div><div class="value" style="color:var(--success)">'+acctYes+'</div></div><div class="kpi-card"><div class="label">连锁客户</div><div class="value">'+chainYes+'</div></div></div>';
+  const kpi='<div class="kpi-row" style="margin-bottom:14px"><div class="kpi-card"><div class="label">客户总数</div><div class="value">'+cs.length+'</div></div><div class="kpi-card"><div class="label" style="color:#722ed1">高价值(S+A)</div><div class="value" style="color:#722ed1">'+hv+'</div><div style="font-size:11px;color:var(--text2)">占 '+(cs.length?Math.round(hv/cs.length*100):0)+'%</div></div><div class="kpi-card"><div class="label">平均年消费</div><div class="value">'+(avgFee/10000).toFixed(1)+'万</div></div><div class="kpi-card"><div class="label">平均合作</div><div class="value">'+avgTen.toFixed(1)+'年</div></div><div class="kpi-card"><div class="label" style="color:#52c41a">续费意向高</div><div class="value" style="color:#52c41a">'+(renewMap['高']||0)+'</div></div></div>';
 
   const donut=function(title,canvasId,legendId){return '<div class="donut-card"><div class="donut-title">'+title+'</div><div class="donut-wrap"><canvas id="'+canvasId+'"></canvas></div><div id="'+legendId+'"></div></div>'};
 
   let grid='<div class="donut-grid">';
-
+  grid+=donut('价值分层(S/A/B/C)','chartValue','lgValue');
+  grid+=donut('续费意向分布','chartRenew','lgRenew');
+  grid+=donut('客情关系分布','chartRel','lgRel');
+  grid+=donut('活跃度分布','chartAct','lgAct');
   grid+=donut('到期风险分布','chartRisk','lgRisk');
-
   grid+=donut('企业类型分布','chartEnt','lgEnt');
-
-  grid+=donut('缴费类型分布','chartPay','lgPay');
-
-  grid+=donut('账号覆盖','chartAcct','lgAcct');
-
-  grid+=donut('连锁属性','chartChain','lgChain');
-
-  grid+=donut('专属客服分布','chartZKPie','lgZKPie');
-
   grid+='</div>';
 
-  document.getElementById('profileOverview').innerHTML=kpi+'<h3 style="margin:6px 0 2px">整体客户画像（按占比）</h3><p style="font-size:12px;color:var(--text2);margin:0 0 6px">点击左侧「客户列表」里的客户名，可查看单个客户的详细画像</p>'+grid;
+  const ranked=cs.map(c=>({c:c,vs:valueScore(c,vctx)})).filter(x=>x.vs.tier==='S'||x.vs.tier==='A').sort((a,b)=>b.vs.score-a.vs.score).slice(0,20);
+  const topHtml='<div class="card" style="margin-top:14px"><h3 style="margin:0 0 8px">🏆 高价值客户 Top '+ranked.length+'（按评分排序，点击查看画像）</h3>'+(ranked.length?'<div class="table-wrap"><table><thead><tr><th>等级</th><th>客户名称</th><th>评分</th><th>年消费</th><th>续费意向</th><th>战略</th></tr></thead><tbody>'+ranked.map(x=>'<tr class="clickable-row" onclick="showProfile(\''+x.c._uid+'\')"><td>'+valueBadge(x.vs.tier,x.vs.score)+'</td><td><strong>'+x.c.name+'</strong></td><td>'+x.vs.score+'</td><td>'+(x.c.annualFee?(x.c.annualFee/10000).toFixed(1)+'万':'-')+'</td><td>'+(x.c.renewIntent||'-')+'</td><td>'+(x.c.strategic==='是'?'⭐':'')+'</td></tr>').join('')+'</tbody></table></div>':'<p style="font-size:12px;color:var(--text2)">暂无高价值客户，去客户列表「价值与客情」维护年消费/续费意向等字段后自动计算。</p>')+'</div>';
 
+  document.getElementById('profileOverview').innerHTML=kpi+'<h3 style="margin:6px 0 2px">整体客户画像（按价值与客情）</h3><p style="font-size:12px;color:var(--text2);margin:0 0 6px">价值分层由「年消费/合作时长/活跃度/产品渗透/规模/续费意向/客情满意度」综合评分自动生成</p>'+grid+topHtml;
+
+  drawDonut('chartValue','lgValue',[{label:'S级(战略高价值)',value:tierCnt.S,color:valueTierColor('S')},{label:'A级(高价值)',value:tierCnt.A,color:valueTierColor('A')},{label:'B级(中价值)',value:tierCnt.B,color:valueTierColor('B')},{label:'C级(潜力/低)',value:tierCnt.C,color:valueTierColor('C')}],cs.length);
+  drawDonut('chartRenew','lgRenew',toArr(renewMap),cs.length);
+  drawDonut('chartRel','lgRel',toArr(relMap),cs.length);
+  drawDonut('chartAct','lgAct',[{label:'高(≥10单)',value:actMap['高'],color:'#52c41a'},{label:'中(1-9单)',value:actMap['中'],color:'#faad14'},{label:'低(0单)',value:actMap['低'],color:'#bfbfbf'}],cs.length);
   drawDonut('chartRisk','lgRisk',[{label:'正常(>60天)',value:riskCnt.normal,color:'#52c41a'},{label:'即将到期(≤60天)',value:riskCnt.exp,color:'#faad14'},{label:'已过期',value:riskCnt.over,color:'#ff4d4f'}],cs.length);
-
   drawDonut('chartEnt','lgEnt',toArr(entMap),cs.length);
 
-  drawDonut('chartPay','lgPay',toArr(payMap),cs.length);
-
-  drawDonut('chartAcct','lgAcct',[{label:'已配账号',value:acctYes,color:'#5b6cff'},{label:'未配账号',value:cs.length-acctYes,color:'#bfbfbf'}],cs.length);
-
-  drawDonut('chartChain','lgChain',[{label:'连锁',value:chainYes,color:'#13c2c2'},{label:'单店/其他',value:cs.length-chainYes,color:'#bfbfbf'}],cs.length);
-
-  drawDonut('chartZKPie','lgZKPie',topMerge(zkMap,6),cs.length);
-
 }
+
 
 function renderProfileSearch(){
 
@@ -1374,7 +1456,7 @@ function showProfile(uid){
 
   // === 基本信息模板 ===
 
-  const infoHTML='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><h3 style="margin:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg> 客户档案</h3><button class="btn btn-outline btn-sm" onclick="editCustomer(\''+c._uid+'\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> 完整编辑</button></div>'+
+  const infoHTML='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><h3 style="margin:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg> 客户档案</h3><button class="btn btn-outline btn-sm" onclick="editCustomer(\''+c._uid+'\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> 完整编辑</button><button class="btn btn-primary btn-sm" style="margin-left:6px" onclick="openServiceReport(\''+c._uid+'\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9h4"/></svg> 生成服务报告</button></div>'+
 
     '<table style="width:100%;font-size:13px"><tbody>'+
 
@@ -1406,11 +1488,69 @@ function showProfile(uid){
 
 
 
-  document.getElementById('profileContent').innerHTML='<div style="margin-bottom:10px"><button class="btn btn-outline btn-sm" onclick="renderProfile()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> 返回整体画像</button></div>'+summaryHTML+infoHTML;
+  const vs=valueScore(c,buildValueContext());
+  const valHTML='<div class="card" style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="margin:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> 价值评估</h3>'+valueBadge(vs.tier,vs.score)+'</div><div style="font-size:13px;margin-bottom:8px">综合评分 <strong style="font-size:18px;color:'+valueTierColor(vs.tier)+'">'+vs.score+'</strong> / 100 · '+valueTierName(vs.tier)+'</div>'+valueBar('年消费金额',vs.subs.amount)+valueBar('合作时长',vs.subs.tenure)+valueBar('活跃度',vs.subs.activity)+valueBar('产品渗透',vs.subs.product)+valueBar('规模',vs.subs.scale)+valueBar('续费意向',vs.subs.renew)+valueBar('客情/满意度',vs.subs.relation)+'<div style="margin-top:8px;font-size:11px;color:var(--text2)">'+valueTierTip()+'</div></div>';
+
+  document.getElementById('profileContent').innerHTML='<div style="margin-bottom:10px"><button class="btn btn-outline btn-sm" onclick="renderProfile()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> 返回整体画像</button></div>'+summaryHTML+valHTML+infoHTML;
 
 }
 
 
+
+// ===== 服务报告 =====
+
+function buildServiceReport(c){
+  const vs=valueScore(c,buildValueContext());
+  const issues=(appData.issues||[]).filter(i=>i.name&&(i.name===c.name||c.name.indexOf(i.name)>=0||i.name.indexOf(c.name)>=0)).slice(0,6);
+  const sugMap={'高':'续费意向高，建议重点维护、争取增购与转介绍；提前120天启动续约沟通。','中':'保持定期联系，挖掘增量需求与增值产品渗透。','低':'排查产品使用痛点，制定专项提升方案，避免滑向流失。','流失风险':'立即介入复盘服务缺口，管理层拜访+服务补救，稳住合作。'};
+  const sug=sugMap[c.renewIntent]||'按季度常规回访，关注活跃度与续费窗口。';
+  const fee=c.annualFee?(c.annualFee/10000).toFixed(1)+'万元':'未登记';
+  const months=c.openDate?Math.max(0,Math.round((Date.now()-new Date(c.openDate).getTime())/2629746000)):0;
+  const tenTxt=months?(months>=12?(months/12).toFixed(1)+'年':months+'个月'):'未登记';
+  const today=new Date().toISOString().slice(0,10);
+  const html='<div style="font-family:inherit;font-size:13px;line-height:1.7">'
+    +'<h2 style="margin:0 0 4px;font-size:18px">'+c.name+' · 客户服务报告</h2>'
+    +'<div style="font-size:12px;color:var(--text2);margin-bottom:10px">生成日期：'+today+' ｜ 价值分级：'+valueBadge(vs.tier,vs.score)+' （综合评分 '+vs.score+'/100）</div>'
+    +'<div style="border-top:1px solid var(--border);padding-top:8px;margin-bottom:8px"><b>一、客户概况</b><br>'
+    +'省份/区域：'+(c.prov||'-')+' '+(c.area||'')+' ｜ 企业类型：'+(c.entType||'-')+' ｜ 主营品类：'+(c.mainCat||'未登记')+'<br>'
+    +'专属客服：'+(c.zk||'-')+' ｜ 销售：'+(c.jl||'-')+' ｜ 工程师：'+(c.engineer||'-')+' ｜ 对接：'+(c.contactPerson||'-')+(c.contactPhone?(' '+c.contactPhone):'')+'<br>'
+    +'战略客户：'+(c.strategic||'否')+' ｜ 开通日期：'+fmtDate(c.openDate)+' ｜ 合作时长：'+tenTxt+' ｜ 失效日期：'+fmtDate(c.expDate)+'</div>'
+    +'<div style="border-top:1px solid var(--border);padding-top:8px;margin-bottom:8px"><b>二、价值与经营指标</b><br>'
+    +'年消费金额：'+fee+' ｜ 授权/实际用户：'+(c.userCount||1)+'/'+(c.accountCount||0)+' ｜ 连锁数：'+(c.chainCount||'0')+' ｜ 近7天开单：'+(c.orders7d||0)+'笔<br>'
+    +'增值产品：'+(c.products||'无')+' ｜ 续费意向：'+(c.renewIntent||'未评估')+' ｜ 客情关系：'+(c.relationship||'未评估')+' ｜ 满意度：'+(c.satisfaction||'未评')+'分</div>'
+    +'<div style="border-top:1px solid var(--border);padding-top:8px;margin-bottom:8px"><b>三、价值维度得分</b><br>'
+    +valueBar('年消费金额',vs.subs.amount)+valueBar('合作时长',vs.subs.tenure)+valueBar('活跃度',vs.subs.activity)+valueBar('产品渗透',vs.subs.product)+valueBar('规模',vs.subs.scale)+valueBar('续费意向',vs.subs.renew)+valueBar('客情/满意度',vs.subs.relation)+'</div>'
+    +'<div style="border-top:1px solid var(--border);padding-top:8px;margin-bottom:8px"><b>四、近期问题（'+issues.length+'）</b><br>'
+    +(issues.length?issues.map(i=>'· ['+(i.priority||'')+'] '+(i.type||'')+'：'+(i.reason||'')+(i.status?('（'+(i.status)+'）'):'')).join('<br>'):'暂无登记问题')
+    +'</div>'
+    +'<div style="border-top:1px solid var(--border);padding-top:8px;margin-bottom:8px"><b>五、维护建议</b><br>'+sug+'</div>'
+    +(c.svcReportNote?'<div style="border-top:1px solid var(--border);padding-top:8px"><b>六、备注</b><br>'+c.svcReportNote+'</div>':'')
+    +'</div>';
+  const text='【'+c.name+' 客户服务报告】'+'（'+today+'）\n'
+    +'价值分级：'+valueTierName(vs.tier)+'（评分'+vs.score+'/100）\n'
+    +'一、客户概况：'+(c.prov||'-')+' '+(c.area||'')+' | '+(c.entType||'-')+' | 主营：'+(c.mainCat||'未登记')+'\n'
+    +'  客服'+(c.zk||'-')+'/销售'+(c.jl||'-')+'/工程师'+(c.engineer||'-')+'，对接'+(c.contactPerson||'-')+'，战略'+(c.strategic||'否')+'\n'
+    +'二、经营指标：年消费'+fee+'，合作'+tenTxt+'，近7天开单'+(c.orders7d||0)+'笔，续费意向'+(c.renewIntent||'未评估')+'，满意度'+(c.satisfaction||'未评')+'分\n'
+    +'三、价值维度：消费'+vs.subs.amount+' 时长'+vs.subs.tenure+' 活跃'+vs.subs.activity+' 产品'+vs.subs.product+' 规模'+vs.subs.scale+' 续费'+vs.subs.renew+' 客情'+vs.subs.relation+'\n'
+    +'四、近期问题('+issues.length+')：\n'+(issues.length?issues.map(i=>'  - ['+(i.priority||'')+']'+(i.reason||'')).join('\n'):'  暂无')+'\n'
+    +'五、维护建议：'+sug+'\n'
+    +(c.svcReportNote?('六、备注：'+c.svcReportNote+'\n'):'');
+  return {html:html,text:text};
+}
+
+function openServiceReport(uid){
+  const c=appData.customers.find(x=>x._uid===uid);if(!c)return;
+  const r=buildServiceReport(c);
+  document.getElementById('svcReportBody').innerHTML=r.html;
+  document.getElementById('svcReportModal').dataset.text=r.text;
+  openModal('svcReportModal');
+}
+
+function copyServiceReport(){
+  const t=document.getElementById('svcReportModal').dataset.text||'';
+  if(window.copyTextRaw)copyTextRaw(t);else{navigator.clipboard.writeText(t);}
+  toast('报告已复制');
+}
 
 // 客户编辑
 
@@ -1426,11 +1566,11 @@ function openCustomerModal(uid){
 
   document.getElementById('cmEntType').innerHTML=appData.tech.entTypes.map(s=>'<option>'+s+'</option>').join('');
 
-  const fields=['cmName','cmId','cmProv','cmArea','cmZK','cmJL','cmYW','cmEngineer','cmContactPerson','cmContactPhone','cmPayType','cmEntType','cmExpDate','cmUserCount','cmAccountCount','cmChainCount','cmOrders','cmPhone','cmProducts','cmServiceNote'];
+  const fields=['cmName','cmId','cmProv','cmArea','cmZK','cmJL','cmYW','cmEngineer','cmContactPerson','cmContactPhone','cmPayType','cmEntType','cmExpDate','cmUserCount','cmAccountCount','cmChainCount','cmOrders','cmPhone','cmProducts','cmServiceNote','cmAnnualFee','cmSatisfaction','cmRenewIntent','cmRelationship','cmStrategic','cmPotential','cmMainCat','cmSvcNote'];
 
   const defaults={cmUserCount:'1',cmAccountCount:'0',cmChainCount:'0',cmOrders:'0'};
 
-  if(uid){const c=appData.customers.find(x=>x._uid===uid);if(c){const map={cmYW:c.yw||'',cmEngineer:c.engineer||'',cmContactPerson:c.contactPerson||'',cmContactPhone:c.contactPhone||'',cmAccountCount:String(c.accountCount||0),cmChainCount:String(c.chainCount||'0'),cmProducts:c.products||'',cmServiceNote:c.serviceNote||'',cmExpDate:c.expDate?c.expDate.substring(0,10):'',cmOrders:String(c.orders7d||0),cmUserCount:String(c.userCount||1),cmName:c.name||'',cmId:c.id||'',cmProv:c.prov||'',cmArea:c.area||'',cmZK:c.zk||'',cmJL:c.jl||'',cmPayType:c.payType||'',cmEntType:c.entType||'',cmPhone:c.phone||''};fields.forEach(k=>{const el=document.getElementById(k);if(!el)return;const v=map[k];if(el.tagName==='SELECT')el.value=v||'';else el.value=v!==undefined?v:(defaults[k]||'')})}}
+  if(uid){const c=appData.customers.find(x=>x._uid===uid);if(c){const map={cmYW:c.yw||'',cmEngineer:c.engineer||'',cmContactPerson:c.contactPerson||'',cmContactPhone:c.contactPhone||'',cmAccountCount:String(c.accountCount||0),cmChainCount:String(c.chainCount||'0'),cmProducts:c.products||'',cmServiceNote:c.serviceNote||'',cmExpDate:c.expDate?c.expDate.substring(0,10):'',cmOrders:String(c.orders7d||0),cmUserCount:String(c.userCount||1),cmName:c.name||'',cmId:c.id||'',cmProv:c.prov||'',cmArea:c.area||'',cmZK:c.zk||'',cmJL:c.jl||'',cmPayType:c.payType||'',cmEntType:c.entType||'',cmPhone:c.phone||'',cmAnnualFee:c.annualFee!=null?String(c.annualFee):'',cmSatisfaction:c.satisfaction!=null?String(c.satisfaction):'',cmRenewIntent:c.renewIntent||'',cmRelationship:c.relationship||'',cmStrategic:c.strategic||'否',cmPotential:c.potential||'',cmMainCat:c.mainCat||'',cmSvcNote:c.svcReportNote||''};fields.forEach(k=>{const el=document.getElementById(k);if(!el)return;const v=map[k];if(el.tagName==='SELECT')el.value=v||'';else el.value=v!==undefined?v:(defaults[k]||'')})}}
 
   else{fields.forEach(k=>{const el=document.getElementById(k);if(!el)return;if(el.tagName==='SELECT')el.selectedIndex=0;else el.value=defaults[k]||''})}
 
@@ -1446,7 +1586,7 @@ function saveCustomer(){
 
   if(expDate){const today=new Date();today.setHours(0,0,0,0);dl=Math.floor((new Date(expDate)-today)/86400000);ed=dl<0?1:0;e60=dl>=0&&dl<=60?1:0}
 
-  const cust={_uid:uid||('manual_'+Date.now()),name,id:document.getElementById('cmId').value.trim(),prov:document.getElementById('cmProv').value.trim(),area:document.getElementById('cmArea').value.trim(),zk:document.getElementById('cmZK').value,jl:document.getElementById('cmJL').value,yw:document.getElementById('cmYW').value.trim(),engineer:document.getElementById('cmEngineer').value.trim(),contactPerson:document.getElementById('cmContactPerson').value.trim(),contactPhone:document.getElementById('cmContactPhone').value.trim(),payType:document.getElementById('cmPayType').value,pkg:'',expDate,daysLeft:dl,expired:ed,expiring60:e60,entType:document.getElementById('cmEntType').value,userCount:parseInt(document.getElementById('cmUserCount').value)||1,accountCount:parseInt(document.getElementById('cmAccountCount').value)||0,chainCount:document.getElementById('cmChainCount').value||'0',xeyj:'',fee:0,orders7d:parseInt(document.getElementById('cmOrders').value)||0,phone:document.getElementById('cmPhone').value.trim(),products:document.getElementById('cmProducts').value.trim(),serviceNote:document.getElementById('cmServiceNote').value.trim(),apps:'',tags:''};
+  const cust={_uid:uid||('manual_'+Date.now()),name,id:document.getElementById('cmId').value.trim(),prov:document.getElementById('cmProv').value.trim(),area:document.getElementById('cmArea').value.trim(),zk:document.getElementById('cmZK').value,jl:document.getElementById('cmJL').value,yw:document.getElementById('cmYW').value.trim(),engineer:document.getElementById('cmEngineer').value.trim(),contactPerson:document.getElementById('cmContactPerson').value.trim(),contactPhone:document.getElementById('cmContactPhone').value.trim(),payType:document.getElementById('cmPayType').value,pkg:'',expDate,daysLeft:dl,expired:ed,expiring60:e60,entType:document.getElementById('cmEntType').value,userCount:parseInt(document.getElementById('cmUserCount').value)||1,accountCount:parseInt(document.getElementById('cmAccountCount').value)||0,chainCount:document.getElementById('cmChainCount').value||'0',xeyj:'',fee:0,orders7d:parseInt(document.getElementById('cmOrders').value)||0,phone:document.getElementById('cmPhone').value.trim(),products:document.getElementById('cmProducts').value.trim(),serviceNote:document.getElementById('cmServiceNote').value.trim(),annualFee:parseFloat(document.getElementById('cmAnnualFee').value)||0,satisfaction:parseFloat(document.getElementById('cmSatisfaction').value)||0,renewIntent:document.getElementById('cmRenewIntent').value,relationship:document.getElementById('cmRelationship').value,strategic:document.getElementById('cmStrategic').value,potential:document.getElementById('cmPotential').value,mainCat:document.getElementById('cmMainCat').value.trim(),svcReportNote:document.getElementById('cmSvcNote').value.trim(),apps:'',tags:''};
 
   if(uid){const idx=appData.customers.findIndex(c=>c._uid===uid);if(idx>=0){const old=appData.customers[idx];cust.tenant=old.tenant||'';cust.openDate=old.openDate||'';cust.lastOrderDate=old.lastOrderDate||'';cust.lastPayDate=old.lastPayDate||'';cust.payCount=old.payCount||'';cust.apps=old.apps||'';cust.tags=old.tags||'';appData.customers[idx]=cust}}else appData.customers.push(cust);
 
@@ -1466,7 +1606,7 @@ function importCustomers(){
 
   lines.forEach(line=>{const p=line.split(',').map(x=>x.trim());if(p.length<3)return;const ed2=p[8]||'';let dl2=null,e2=0,ee2=0;if(ed2&&ed2.length>=10){dl2=Math.floor((new Date(ed2)-today)/86400000);e2=dl2<0?1:0;ee2=dl2>=0&&dl2<=60?1:0}
 
-    appData.customers.push({_uid:'manual_'+Date.now()+'_'+count,name:p[0],prov:p[1]||'',area:p[2]||'',zk:p[3]||'',jl:p[4]||'',engineer:p[5]||'',yw:'',payType:p[6]||'新客户',pkg:p[7]||'',expDate:ed2,daysLeft:dl2,expired:e2,expiring60:ee2,entType:p[9]||'贸易商',userCount:parseInt(p[10])||1,xeyj:'未开通',fee:0,orders7d:0,apps:'',tags:'',phone:'',tenant:'',openDate:'',lastOrderDate:'',lastPayDate:'',payCount:'',chainCount:''});count++});
+    appData.customers.push({_uid:'manual_'+Date.now()+'_'+count,name:p[0],prov:p[1]||'',area:p[2]||'',zk:p[3]||'',jl:p[4]||'',engineer:p[5]||'',yw:'',payType:p[6]||'新客户',pkg:p[7]||'',expDate:ed2,daysLeft:dl2,expired:e2,expiring60:ee2,entType:p[9]||'贸易商',userCount:parseInt(p[10])||1,xeyj:'未开通',fee:0,orders7d:0,apps:'',tags:'',phone:'',tenant:'',openDate:'',lastOrderDate:'',lastPayDate:'',payCount:'',chainCount:'',annualFee:0,satisfaction:0,renewIntent:'',relationship:'',strategic:'否',potential:'',mainCat:'',svcReportNote:''});count++});
 
   refreshStats();saveData();closeModal('importCustomerModal');renderCustomerTable();toast('导入 '+count+' 个客户');
 
