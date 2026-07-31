@@ -757,6 +757,7 @@ function smartMerge(old,neu){
   const m=JSON.parse(JSON.stringify(neu));
 
   m.issues=old.issues||m.issues;
+  if(old.meta){m.meta.todos=old.meta.todos||m.meta.todos;m.meta.profile=old.meta.profile||m.meta.profile;m.meta.cardColors=old.meta.cardColors||m.meta.cardColors;}
 
   const nn=new Set(m.customers.map(c=>c.name));
 
@@ -764,6 +765,23 @@ function smartMerge(old,neu){
 
   m.meta.merged=true;m.meta.oldDate=old.meta.date;return m;
 
+}
+
+// 保留用户手动设置的数据（业绩目标/待办/客户问题/主题等），外部导入/合并/恢复时不被清空
+function preserveUserScoped(existing,incoming){
+  if(!existing)return incoming;
+  var out=incoming||{};
+  if(!out.meta)out.meta={};
+  if(existing.meta){
+    out.meta.todos=existing.meta.todos||out.meta.todos||[];
+    out.meta.profile=existing.meta.profile||out.meta.profile||{};
+    out.meta.cardColors=existing.meta.cardColors||out.meta.cardColors||{};
+    if(existing.meta.theme)out.meta.theme=existing.meta.theme;
+    if(existing.meta.ocrKey)out.meta.ocrKey=existing.meta.ocrKey;
+    if(existing.meta.phone)out.meta.phone=existing.meta.phone;
+  }
+  out.issues=existing.issues||out.issues||[];
+  return out;
 }
 
 function saveData(){
@@ -836,7 +854,7 @@ function exportStandalone(){
 
 }
 
-function importDataPrompt(){const i=document.createElement('input');i.type='file';i.accept='.json';i.onchange=e=>{const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(d.customers){appData=d;saveData();toast('导入成功！');setTimeout(()=>location.reload(),1500)}else toast('格式错误')}catch(ex){toast('解析失败')}};r.readAsText(e.target.files[0])};i.click()}
+function importDataPrompt(){const i=document.createElement('input');i.type='file';i.accept='.json';i.onchange=e=>{const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(d.customers){appData=preserveUserScoped(appData,d);saveData();toast('导入成功！（已保留你的业绩目标/待办/客户问题）');setTimeout(()=>location.reload(),1500)}else toast('格式错误')}catch(ex){toast('解析失败')}};r.readAsText(e.target.files[0])};i.click()}
 
 function resetData(){if(!confirm('确定重置？所有手动修改将丢失。'))return;localStorage.removeItem(STORAGE_KEY);location.reload()}
 
@@ -2142,7 +2160,7 @@ function restoreFromCode(){
 
     if(!obj.data||!obj.data.customers){toast('无效的备份数据');return}
 
-    appData=obj.data;saveData();closeModal('syncModal');
+    appData=preserveUserScoped(appData,obj.data);saveData();closeModal('syncModal');
 
     toast('<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg> 恢复成功！'+obj.data.customers.length+'个客户，'+(obj.time?obj.time.slice(0,10):'')+'备份');
 
