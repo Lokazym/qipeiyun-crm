@@ -667,43 +667,44 @@ async function boot(){
 
   const hint=document.getElementById('loginHint');
 
-  // 本地浏览器缓存优先：不依赖 GitHub（中国网络访问 api.github.com 经常失败），
-  // 且绝不因云端取数失败而误判为“首次使用”去覆盖数据
-  const cached=localStorage.getItem(STORAGE_KEY+'_enc');
+  // 优先云端（共享数据源，且能避开被旧 bug 污染的本地缓存）；
+  // 云端取不到（中国网络常访问不了 api.github.com）时回退到本地缓存；都没有才视为首次使用
+  const raw=await loadCloudRaw();
 
-  if(cached){
+  if(raw){
 
-    try{ cloudEnc=JSON.parse(cached); hint.textContent='本地缓存模式：请输入访问密码'; }
+    try{
 
-    catch(e){ cloudEnc=null; }
+      const obj=JSON.parse(raw);
+
+      if(obj&&obj.ct&&obj.iv&&obj.salt){cloudEnc=obj;hint.textContent='检测到云端数据，请输入访问密码';}
+
+      else if(obj&&obj.customers){cloudSeed=obj;hint.textContent='检测到旧版数据，请设置加密密码完成升级';}
+
+      else{hint.textContent='首次使用，请设置访问密码（用于加密你的云端数据）';}
+
+    }catch(e){cloudEnc=null;}
 
   }
 
   if(!cloudEnc){
 
-    // 本地无缓存，再尝试云端
-    const raw=await loadCloudRaw();
+    const cached=localStorage.getItem(STORAGE_KEY+'_enc');
 
-    if(raw){
+    if(cached){
 
-      try{
+      try{ cloudEnc=JSON.parse(cached); hint.textContent='本地缓存模式：请输入访问密码'; }
 
-        const obj=JSON.parse(raw);
-
-        if(obj&&obj.ct&&obj.iv&&obj.salt){cloudEnc=obj;hint.textContent='检测到云端数据，请输入访问密码';}
-
-        else if(obj&&obj.customers){cloudSeed=obj;hint.textContent='检测到旧版数据，请设置加密密码完成升级';}
-
-        else{hint.textContent='首次使用，请设置访问密码（用于加密你的云端数据）';}
-
-      }catch(e){hint.textContent='首次使用，请设置访问密码（用于加密你的云端数据）';}
-
-    }else{
-
-      // 云端取不到：不自动初始化、不覆盖，等用户联网后重试
-      hint.textContent='首次使用，请设置访问密码（用于加密你的云端数据）';
+      catch(e){ cloudEnc=null; }
 
     }
+
+  }
+
+  if(!cloudEnc){
+
+    // 云端与本地都取不到：不自动初始化、不覆盖，等用户联网后重试
+    hint.textContent='首次使用，请设置访问密码（用于加密你的云端数据）';
 
   }
 
