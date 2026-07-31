@@ -855,21 +855,78 @@ function smartMerge(old,neu){
 
 }
 
-// 保留用户手动设置的数据（业绩目标/待办/客户问题/主题等），外部导入/合并/恢复时不被清空
-function preserveUserScoped(existing,incoming){
+// 判空：注意 JS 里 [] 和 {} 都是真值，早期版本用 || 判断导致“空数据顶掉好数据”，恢复备份永远失败
+function _isEmptyVal(v){
+  if(v===undefined||v===null)return true;
+  if(Array.isArray(v))return v.length===0;
+  if(typeof v==='object')return Object.keys(v).length===0;
+  return v===''||v===0;
+}
+// 数组按业务键去重合并（现有在前，传入补充）
+function _mergeArr(a,b,keyFn){
+  var out=[],seen={};
+  (a||[]).concat(b||[]).forEach(function(it){
+    var k;
+    try{k=keyFn(it);}catch(e){k=null;}
+    if(k===undefined||k===null||k==='')k=JSON.stringify(it);
+    if(seen[k])return;
+    seen[k]=1;out.push(it);
+  });
+  return out;
+}
+// 业绩目标按月份逐项合并：同一月份取非零的那个（现有优先）
+function _mergeMonths(a,b){
+  var out={},keys={};
+  Object.keys(a||{}).forEach(function(k){keys[k]=1});
+  Object.keys(b||{}).forEach(function(k){keys[k]=1});
+  Object.keys(keys).forEach(function(k){
+    var x=(a&&a[k])||{},y=(b&&b[k])||{};
+    out[k]={target:(parseFloat(x.target)||0)||(parseFloat(y.target)||0),
+            done:(parseFloat(x.done)||0)||(parseFloat(y.done)||0)};
+  });
+  return out;
+}
+// 保留用户手动设置的数据（业绩目标/待办/客户问题/主题等）
+// mode: 'merge'(默认,双方合并去重) | 'replace'(以传入的备份为准，用于数据恢复)
+function preserveUserScoped(existing,incoming,mode){
   if(!existing)return incoming;
   var out=incoming||{};
   if(!out.meta)out.meta={};
-  if(existing.meta){
-    out.meta.todos=existing.meta.todos||out.meta.todos||[];
-    out.meta.profile=existing.meta.profile||out.meta.profile||{};
-    out.meta.cardColors=existing.meta.cardColors||out.meta.cardColors||{};
-    if(existing.meta.theme)out.meta.theme=existing.meta.theme;
-    if(existing.meta.ocrKey)out.meta.ocrKey=existing.meta.ocrKey;
-    if(existing.meta.phone)out.meta.phone=existing.meta.phone;
-    if(existing.meta.reports)out.meta.reports=existing.meta.reports;
+  var em=existing.meta||{};
+  var rep=(mode==='replace');
+  // 任一方为空就取另一方，绝不让“空”覆盖“有”
+  function pick(cur,inc){
+    if(rep)return _isEmptyVal(inc)?cur:inc;
+    if(_isEmptyVal(cur))return inc;
+    if(_isEmptyVal(inc))return cur;
+    return cur;
   }
-  out.issues=existing.issues||out.issues||[];
+  // 客户问题
+  if(rep) out.issues=_isEmptyVal(out.issues)?(existing.issues||[]):out.issues;
+  else out.issues=_mergeArr(existing.issues,out.issues,function(x){
+    return (x.name||'')+'|'+(x.exp||x.reason||x.note||'')+'|'+(x.repDate||'');});
+  // 待办
+  if(rep) out.meta.todos=_isEmptyVal(out.meta.todos)?(em.todos||[]):out.meta.todos;
+  else out.meta.todos=_mergeArr(em.todos,out.meta.todos,function(x){
+    return typeof x==='string'?x:(x.text||x.title||x.name||'');});
+  // 业绩目标
+  var pE=em.profile||{},pI=out.meta.profile||{};
+  if(rep){ out.meta.profile=_isEmptyVal(pI)?pE:pI; }
+  else{
+    var merged=Object.assign({},pI,pE);
+    var mm=_mergeMonths(pE.months,pI.months);
+    if(Object.keys(mm).length)merged.months=mm;
+    out.meta.profile=merged;
+  }
+  // 日报周报记录
+  if(rep) out.meta.reports=_isEmptyVal(out.meta.reports)?(em.reports||[]):out.meta.reports;
+  else out.meta.reports=_mergeArr(em.reports,out.meta.reports,function(x){
+    return typeof x==='string'?x:JSON.stringify(x);});
+  out.meta.cardColors=pick(em.cardColors,out.meta.cardColors)||{};
+  ['theme','ocrKey','phone'].forEach(function(k){
+    if(!_isEmptyVal(em[k])&&_isEmptyVal(out.meta[k]))out.meta[k]=em[k];
+    else if(!_isEmptyVal(em[k])&&!rep)out.meta[k]=em[k];
+  });
   return out;
 }
 
@@ -943,7 +1000,7 @@ function exportStandalone(){
 
 }
 
-function importDataPrompt(){const i=document.createElement('input');i.type='file';i.accept='.json';i.onchange=e=>{const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(d&&d.ct&&d.iv&&d.salt){try{localStorage.setItem(STORAGE_KEY+'_enc',JSON.stringify(d));}catch(e){}toast('已载入加密云端备份，正在重新登录解密...');setTimeout(()=>location.reload(),1200);return;}if(d.customers){appData=preserveUserScoped(appData,d);saveData();toast('导入成功！（已保留你的业绩目标/待办/客户问题）');setTimeout(()=>location.reload(),1500)}else toast('格式错误')}catch(ex){toast('解析失败')}};r.readAsText(e.target.files[0])};i.click()}
+function importDataPrompt(){const i=document.createElement('input');i.type='file';i.accept='.json';i.onchange=e=>{const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(d&&d.ct&&d.iv&&d.salt){try{localStorage.setItem(STORAGE_KEY+'_enc',JSON.stringify(d));}catch(e){}toast('已载入加密云端备份，正在重新登录解密...');setTimeout(()=>location.reload(),1200);return;}if(d.customers){var ni=(d.issues||[]).length,nt=((d.meta||{}).todos||[]).length;var ci=(appData.issues||[]).length,ct2=(((appData.meta||{}).todos)||[]).length;var mode=confirm('备份含 问题'+ni+'条 / 待办'+nt+'条；当前 问题'+ci+'条 / 待办'+ct2+'条。\n\n【确定】= 合并两边（推荐，不丢数据）\n【取消】= 用备份完全覆盖当前（数据恢复用）')?'merge':'replace';appData=preserveUserScoped(appData,d,mode);saveData();toast(mode==='merge'?'已合并导入！问题'+(appData.issues||[]).length+'条':'已用备份恢复！问题'+(appData.issues||[]).length+'条');setTimeout(()=>location.reload(),1800)}else toast('格式错误')}catch(ex){toast('解析失败')}};r.readAsText(e.target.files[0])};i.click()}
 
 function resetData(){if(!confirm('确定重置？所有手动修改将丢失。'))return;localStorage.removeItem(STORAGE_KEY);location.reload()}
 
