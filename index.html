@@ -304,11 +304,14 @@ tr:hover{background:#fafafa}
 
 <div class="card" style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px"><h3 style="margin:0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> 批量导入问题</h3><div style="display:flex;gap:8px"><button class="btn btn-primary btn-sm" onclick="openSmartImport('issue')">📋 一键粘贴导入</button><button class="btn btn-outline btn-sm" onclick="smartImportImage('issue')">🖼 截图识别</button></div></div><div style="font-size:11px;color:var(--text2);margin-top:6px">复制 / 粘贴格式：<b>客户名：问题描述</b>（每行一条）。点「📋 一键粘贴导入」自动识别并<b>预览确认</b>；或直接 <b>Ctrl+V</b> 粘贴截图 / 拖拽图片到文本框，OCR 后自动匹配客户。缺列自动补默认值（中优先级 / 咨询）。</div></div>
 
+<!-- 日报/周报导入 -->
+<div class="card" style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px"><h3 style="margin:0">📑 日报 / 周报 导入（粘贴）</h3><div style="display:flex;gap:8px"><button class="btn btn-primary btn-sm" onclick="openReportImport('日报')">📋 粘贴导入日报</button><button class="btn btn-outline btn-sm" onclick="openReportImport('周报')">📋 粘贴导入周报</button></div></div><div style="font-size:11px;color:var(--text2);margin-top:6px">粘贴整段日报 / 周报，<b>自动按行智能匹配客户</b>并生成问题。格式：<b>客户名：问题描述</b>（每行一条）；支持 Ctrl+V 粘贴截图自动 OCR。每条问题会标记来源（日报 / 周报）与日期，便于后续按来源筛选跟进。</div><div id="reportLog" style="margin-top:8px;font-size:12px"></div></div>
+
 <div class="quick-add"><input type="text" id="quickIssueName" placeholder="客户名称" list="customerList"><datalist id="customerList"></datalist><select id="quickIssueType"><option value="bug"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="6" width="8" height="13" rx="4"/><path d="M19 7l-3 2M5 7l3 2M19 13h-3M8 13H5M19 19l-3-2M5 19l3-2M12 6V4"/></svg> Bug</option><option value="咨询" selected>💬 咨询</option><option value="需求"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg> 需求</option><option value="其他"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5M9 10.76V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4.76a2 2 0 0 0 .59 1.41l2.41 2.41a2 2 0 0 1 .59 1.42V18a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-1.59a2 2 0 0 1 .59-1.42l2.41-2.41a2 2 0 0 0 .59-1.41z"/></svg> 其他</option></select><select id="quickIssuePriority"><option value="high"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="#ff4d4f"/></svg>高</option><option value="medium" selected><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="#faad14"/></svg>中</option><option value="low"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="#d4b106"/></svg>低</option></select><input type="text" id="quickIssueReason" placeholder="问题描述" style="flex:2"><button class="btn btn-primary btn-sm" onclick="quickAddIssue()">+ 快速添加</button></div>
 
 <div class="kpi-row" id="kpiIssues"></div>
 
-<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="margin:0">问题表格（可直接编辑）<span class="count" id="issueTableCount"></span></h3><div style="display:flex;gap:6px"><button class="btn btn-outline btn-sm" onclick="addIssueRow()">+ 添加行</button></div></div><div class="issue-table-wrap" id="issueTable"></div></div></div>
+<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="margin:0">问题表格（可直接编辑）<span class="count" id="issueTableCount"></span></h3><div style="display:flex;gap:6px"><select id="issueSrcFilter" onchange="renderIssueTable()" style="font-size:12px;padding:3px 6px;border:1px solid var(--border);border-radius:6px"><option value="">全部来源</option><option value="日报">日报</option><option value="周报">周报</option><option value="导入">导入</option><option value="手动">手动</option></select><button class="btn btn-outline btn-sm" onclick="addIssueRow()">+ 添加行</button></div></div><div class="issue-table-wrap" id="issueTable"></div></div></div>
 
 
 
@@ -802,6 +805,7 @@ function preserveUserScoped(existing,incoming){
     if(existing.meta.theme)out.meta.theme=existing.meta.theme;
     if(existing.meta.ocrKey)out.meta.ocrKey=existing.meta.ocrKey;
     if(existing.meta.phone)out.meta.phone=existing.meta.phone;
+    if(existing.meta.reports)out.meta.reports=existing.meta.reports;
   }
   out.issues=existing.issues||out.issues||[];
   return out;
@@ -1616,13 +1620,17 @@ function importCustomers(){
 
 // ===== 问题跟进 =====
 
+function srcBadge(s){s=s||'手动';var c={日报:'#1677ff',周报:'#722ed1',导入:'#faad14',手动:'#8c8c8c'}[s]||'#8c8c8c';return '<span style="display:inline-block;padding:1px 7px;border-radius:9px;font-size:10px;color:#fff;background:'+c+'">'+s+'</span>';}
+
+function renderReportLog(){var el=document.getElementById('reportLog');if(!el)return;var logs=appData.meta.reports||[];if(!logs.length){el.innerHTML='<span style="color:var(--text2)">暂无日报/周报导入记录</span>';return;}el.innerHTML='<div style="color:var(--text2);margin-bottom:4px">📑 最近导入记录</div>'+logs.slice(0,8).map(function(r){var col={日报:'#1677ff',周报:'#722ed1'}[r.src]||'#999';return '<div style="display:flex;gap:8px;align-items:center;padding:3px 0;border-top:1px dashed var(--border);font-size:12px"><span style="background:'+col+';color:#fff;padding:1px 7px;border-radius:9px;font-size:10px">'+r.src+'</span><span>'+r.date+'</span><span style="color:var(--text2)">'+r.count+' 条</span></div>';}).join('');}
+
 function renderIssues(){
 
   document.getElementById('customerList').innerHTML=cn().map(n=>'<option value="'+n+'">').join('');
 
   document.getElementById('zentaoUrl').value=appData.zentaoUrl||'';
 
-  renderIssueStats();renderIssueTable();
+  renderIssueStats();renderIssueTable();renderReportLog();
 
 }
 
@@ -1646,11 +1654,14 @@ function renderIssueStats(){
 
 function renderIssueTable(){
 
-  document.getElementById('issueTableCount').textContent='共 '+appData.issues.length+' 条';
+  var _sf=document.getElementById('issueSrcFilter');var _sfv=_sf?_sf.value:'';
+  var _list=appData.issues.map(function(iss,i){return {iss:iss,i:i};}).filter(function(o){var s=o.iss.src||'手动';if(!_sfv)return true;if(_sfv==='手动')return (!o.iss.src||o.iss.src==='手动');return s===_sfv;});
+  document.getElementById('issueTableCount').textContent='共 '+appData.issues.length+' 条'+(_sfv?('，显示 '+_list.length+' 条'):'');
+  if(!_list.length){document.getElementById('issueTable').innerHTML='<div class=\"empty-state\"><div class=\"icon\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M9 2h6a2 2 0 0 1 2 2v1h2a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2V4a2 2 0 0 1 2-2z\"/></svg></div><p>当前来源筛选无匹配问题</p></div>';return;}
 
   if(appData.issues.length===0){document.getElementById('issueTable').innerHTML='<div class="empty-state"><div class="icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6a2 2 0 0 1 2 2v1h2a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2V4a2 2 0 0 1 2-2z"/></svg></div><p>暂无问题，使用上方粘贴导入或快捷录入添加</p></div>';return}
 
-  document.getElementById('issueTable').innerHTML='<table><thead><tr><th style="width:130px">客户名称</th><th style="width:65px">类型</th><th style="width:65px">优先级</th><th>问题描述</th><th style="width:80px">客服</th><th style="width:80px">状态</th><th style="width:60px">操作</th></tr></thead><tbody>'+appData.issues.map((iss,i)=>'<tr class="'+(iss.status==='done'?'done':'')+'"><td><input value="'+iss.name+'" onchange="updateIssueField('+i+',\'name\',this.value)" style="font-weight:600"></td><td><select onchange="updateIssueField('+i+',\'type\',this.value)"><option value="bug" '+(iss.type==='bug'?'selected':'')+'><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="6" width="8" height="13" rx="4"/><path d="M19 7l-3 2M5 7l3 2M19 13h-3M8 13H5M19 19l-3-2M5 19l3-2M12 6V4"/></svg>Bug</option><option value="咨询" '+((iss.type||'咨询')==='咨询'?'selected':'')+'>💬咨询</option><option value="需求" '+(iss.type==='需求'?'selected':'')+'><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>需求</option><option value="其他" '+(iss.type==='其他'?'selected':'')+'><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5M9 10.76V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4.76a2 2 0 0 0 .59 1.41l2.41 2.41a2 2 0 0 1 .59 1.42V18a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-1.59a2 2 0 0 1 .59-1.42l2.41-2.41a2 2 0 0 0 .59-1.41z"/></svg>其他</option></select></td><td><select onchange="updateIssueField('+i+',\'priority\',this.value)"><option value="high" '+(iss.priority==='high'?'selected':'')+'><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="#ff4d4f"/></svg>高</option><option value="medium" '+(iss.priority==='medium'?'selected':'')+'><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="#faad14"/></svg>中</option><option value="low" '+(iss.priority==='low'?'selected':'')+'><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="#d4b106"/></svg>低</option></select></td><td><input value="'+(iss.reason||'')+'" onchange="updateIssueField('+i+',\'reason\',this.value)" style="width:100%"></td><td><input value="'+(iss.zk||'')+'" onchange="updateIssueField('+i+',\'zk\',this.value)"></td><td><select onchange="updateIssueField('+i+',\'status\',this.value)"><option value="pending" '+(iss.status!=='done'?'selected':'')+'>待处理</option><option value="done" '+(iss.status==='done'?'selected':'')+'>已完成</option></select></td><td><button class="btn btn-xs btn-primary" onclick="editIssueRow('+i+')" title="编辑">✎</button><button class="btn btn-xs btn-success" onclick="toggleIssue('+i+')" title="切换状态">✓</button><button class="btn btn-outline btn-xs" style="color:var(--danger);margin-left:2px" onclick="deleteIssueRow('+i+')">×</button></td></tr>').join('')+'</tbody></table>';
+  document.getElementById('issueTable').innerHTML='<table><thead><tr><th style="width:130px">客户名称</th><th style="width:65px">类型</th><th style="width:65px">优先级</th><th>问题描述</th><th style="width:80px">客服</th><th style="width:80px">状态</th><th style="width:70px">来源</th><th style="width:60px">操作</th></tr></thead><tbody>'+_list.map(function(o){var iss=o.iss,i=o.i;return '<tr class="'+(iss.status==='done'?'done':'')+'" data-src="'+(iss.src||'手动')+'"><td><input value="'+iss.name+'" onchange="updateIssueField('+i+',\'name\',this.value)" style="font-weight:600"><div style="margin-top:2px">'+srcBadge(iss.src||'手动')+'</div></td><td><select onchange="updateIssueField('+i+',\'type\',this.value)"><option value="bug" '+(iss.type==='bug'?'selected':'')+'><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="6" width="8" height="13" rx="4"/><path d="M19 7l-3 2M5 7l3 2M19 13h-3M8 13H5M19 19l-3-2M5 19l3-2M12 6V4"/></svg>Bug</option><option value="咨询" '+((iss.type||'咨询')==='咨询'?'selected':'')+'>💬咨询</option><option value="需求" '+(iss.type==='需求'?'selected':'')+'><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>需求</option><option value="其他" '+(iss.type==='其他'?'selected':'')+'><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5M9 10.76V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4.76a2 2 0 0 0 .59 1.41l2.41 2.41a2 2 0 0 1 .59 1.42V18a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-1.59a2 2 0 0 1 .59-1.42l2.41-2.41a2 2 0 0 0 .59-1.41z"/></svg>其他</option></select></td><td><select onchange="updateIssueField('+i+',\'priority\',this.value)"><option value="high" '+(iss.priority==='high'?'selected':'')+'><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="#ff4d4f"/></svg>高</option><option value="medium" '+(iss.priority==='medium'?'selected':'')+'><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="#faad14"/></svg>中</option><option value="low" '+(iss.priority==='low'?'selected':'')+'><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="#d4b106"/></svg>低</option></select></td><td><input value="'+(iss.reason||'')+'" onchange="updateIssueField('+i+',\'reason\',this.value)" style="width:100%"></td><td><input value="'+(iss.zk||'')+'" onchange="updateIssueField('+i+',\'zk\',this.value)"></td><td><select onchange="updateIssueField('+i+',\'status\',this.value)"><option value="pending" '+(iss.status!=='done'?'selected':'')+'>待处理</option><option value="done" '+(iss.status==='done'?'selected':'')+'>已完成</option></select></td><td><button class="btn btn-xs btn-primary" onclick="editIssueRow('+i+')" title="编辑">✎</button><button class="btn btn-xs btn-success" onclick="toggleIssue('+i+')" title="切换状态">✓</button><button class="btn btn-outline btn-xs" style="color:var(--danger);margin-left:2px" onclick="deleteIssueRow('+i+')">×</button></td></tr>';}).join('')+'</tbody></table>';
 
 }
 
@@ -1660,13 +1671,13 @@ function quickAddIssue(){
 
   const name=document.getElementById('quickIssueName').value.trim(),reason=document.getElementById('quickIssueReason').value.trim();if(!name||!reason){toast('请填写客户名称和问题描述');return}
 
-  appData.issues.unshift({id:'iss_'+Date.now(),name,type:document.getElementById('quickIssueType').value,priority:document.getElementById('quickIssuePriority').value,zk:'',jl:'',exp:'',status:'pending',reason,note:'',dl:null,fee:0,o7:0});
+  appData.issues.unshift({id:'iss_'+Date.now(),name,type:document.getElementById('quickIssueType').value,priority:document.getElementById('quickIssuePriority').value,zk:'',jl:'',exp:'',status:'pending',reason,note:'',dl:null,fee:0,o7:0,src:'手动'});
 
   document.getElementById('quickIssueName').value='';document.getElementById('quickIssueReason').value='';touchIssueDate();saveData();renderIssueStats();renderIssueTable();toast('已添加');
 
 }
 
-function addIssueRow(){appData.issues.unshift({id:'iss_'+Date.now(),name:'',type:'咨询',priority:'medium',zk:'',jl:'',exp:'',status:'pending',reason:'',note:'',dl:null,fee:0,o7:0});touchIssueDate();saveData();renderIssueTable();renderIssueStats()}
+function addIssueRow(){appData.issues.unshift({id:'iss_'+Date.now(),name:'',type:'咨询',priority:'medium',zk:'',jl:'',exp:'',status:'pending',reason:'',note:'',dl:null,fee:0,o7:0,src:'手动'});touchIssueDate();saveData();renderIssueTable();renderIssueStats()}
 
 function toggleIssue(idx){appData.issues[idx].status=appData.issues[idx].status==='done'?'pending':'done';touchIssueDate();saveData();renderIssueStats();renderIssueTable()}
 
@@ -1719,7 +1730,7 @@ function importIssues(){
 
   const text=document.getElementById('importIssueText').value.trim();if(!text)return;const lines=text.split('\n').filter(l=>l.trim());let count=0;
 
-  lines.forEach(line=>{const p=line.split(',').map(x=>x.trim());if(p.length<2)return;appData.issues.unshift({id:'iss_'+Date.now()+'_'+count,name:p[0],type:p[3]||'咨询',priority:p[1]||'medium',reason:p[2]||'',zk:p[3]||'',jl:p[4]||'',exp:p[5]||'',status:'pending',note:p[6]||'',dl:null,fee:0,o7:0});count++});
+  lines.forEach(line=>{const p=line.split(',').map(x=>x.trim());if(p.length<2)return;appData.issues.unshift({id:'iss_'+Date.now()+'_'+count,name:p[0],type:p[3]||'咨询',priority:p[1]||'medium',reason:p[2]||'',zk:p[3]||'',jl:p[4]||'',exp:p[5]||'',status:'pending',note:p[6]||'',dl:null,fee:0,o7:0,src:'导入'});count++});
 
   touchIssueDate();saveData();closeModal('importIssueModal');renderIssueStats();renderIssueTable();toast('导入 '+count+' 个问题');
 
@@ -2393,6 +2404,8 @@ function copyAllAcct(){var lines=[];activeCustomers().forEach(function(c){(c.acc
 
 function pasteAcctImport(){openSmartImport('acct');}
 
+function openReportImport(src){openSmartImport('issue',null,{src:src});}
+
 function findCustFuzzy(name){
 
   if(!name)return null;var list=activeCustomers();
@@ -2612,7 +2625,7 @@ function siParse(kind,text){
   var lines=text.split('\n').map(function(l){return l.replace(/\r/g,'')}).filter(function(l){return l.trim()});
   lines.forEach(function(line,li){
     var lt=line.trim();
-    if(li===0&&/(客户|名称)/.test(lt)&&!/[0-9]{4,}/.test(lt)&&(/(优先级|问题|描述|密码|账号|系统)/.test(lt)))return; // 表头
+    if(li===0&&/(客户|名称)/.test(lt)&&!/[0-9]{4,}/.test(lt)&&(/(优先级|问题|描述|密码|账号|系统)/.test(lt))&&!/[：:]/.test(lt))return; // 表头（含冒号则视为数据行）
     if(kind==='acct'){
       var sys='',acc='',pwd='',rem='',cname='';
       var mAcc=lt.match(/(?:账号|账户|用户名)[:：]\s*(\S+)/),mPwd=lt.match(/密码[:：]\s*(\S+)/);
@@ -2643,6 +2656,8 @@ function siParse(kind,text){
       if(ci>-1){
         var cname=lt.slice(0,ci).trim();
         var desc=lt.slice(ci+1).trim();
+        if(/^(客户|客户名|门店|单位|公司|名称)[:：]?$/.test(cname)){var _r=lt.slice(ci+1);var _ci2=_r.search(/[：:]/);if(_ci2>-1){cname=_r.slice(0,_ci2).trim();desc=_r.slice(_ci2+1).trim();}else{var _pp=_r.trim().split(/\s+/);cname=_pp.shift()||'';desc=_pp.join(' ');}}
+        cname=cname.replace(/^[【\[\(（「'"]+/g,'').replace(/[】\]\)）」'"]+$/g,'').trim();
         if(!cname)return;
         var c=findCustFuzzy(cname);
         var row={ok:true,cname:cname,cust:c,priority:'medium',type:'咨询',zk:c?(c.zk||''):'',reason:desc,note:'',checked:true,warn:desc?(c?'':'未匹配客户(可手动选择)'):'缺描述',raw:lt};
@@ -2679,12 +2694,13 @@ function siParse(kind,text){
   return rows;
 }
 
-function openSmartImport(kind,prefill){
+function openSmartImport(kind,prefill,opts){
   window._siKind=kind;
+  window._siReportSrc=(opts&&opts.src)?opts.src:null;
   var old=document.getElementById('smartImportModal');if(old)old.remove();
   var m=document.createElement('div');m.className='modal-overlay show';m.id='smartImportModal';
   if(kind==='issue'){
-    var title='批量导入问题';
+    var title=window._siReportSrc?('粘贴导入'+window._siReportSrc):'批量导入问题';
     m.innerHTML='<div class="modal large" style="max-width:880px"><h3>'+title+'　<span style="font-weight:400;font-size:12px;color:var(--text2)">格式：客户名：问题描述（每行一条）；支持 Ctrl+V 粘贴截图 / 拖拽图片，自动 OCR 并匹配客户</span></h3>'
      +'<div style="margin-bottom:6px"><textarea id="siText" rows="6" placeholder="杭州铭泽：配件搜图看不到图片，有图片的看到的都是本身的图，我本地能搜到\n客户名：问题描述……" style="width:100%;font-size:12px;border:1px solid var(--border);border-radius:6px;padding:8px;font-family:monospace;line-height:1.5"></textarea></div>'
      +'<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><button class="btn btn-outline btn-sm" onclick="siPickImageToTextarea()">📷 选择图片识别</button><span style="font-size:11px;color:var(--text2)">可直接粘贴 / 拖拽截图到文本框，OCR 后自动填入并识别客户</span></div>'
@@ -2874,11 +2890,17 @@ function siConfirm(){
 
     }else{
 
-      appData.issues.unshift({id:'iss_'+Date.now()+'_'+i,name:r.cust?r.cust.name:r.cname,type:r.type||'咨询',priority:r.priority||'medium',zk:r.zk||'',jl:'',exp:'',status:'pending',reason:r.reason||'',note:r.note||'',dl:null,fee:0,o7:0});added++;
+      appData.issues.unshift({id:'iss_'+Date.now()+'_'+i,name:r.cust?r.cust.name:r.cname,type:r.type||'咨询',priority:r.priority||'medium',zk:r.zk||'',jl:'',exp:'',status:'pending',reason:r.reason||'',note:r.note||'',dl:null,fee:0,o7:0,src:(window._siReportSrc||'导入'),repDate:new Date().toISOString().slice(0,10)});added++;
 
     }
 
   });
+
+  if(window._siReportSrc){
+    if(!appData.meta.reports)appData.meta.reports=[];
+    appData.meta.reports.unshift({date:new Date().toISOString().slice(0,10),src:window._siReportSrc,count:added,text:rows.map(function(r){return r.raw||''}).join('\n')});
+    renderReportLog();
+  }
 
   saveData();
 
@@ -2887,6 +2909,7 @@ function siConfirm(){
   else{touchIssueDate();renderIssueStats();renderIssueTable();toast('✅ 导入 '+added+' 条问题');}
 
   var m=document.getElementById('smartImportModal');if(m)m.remove();
+  window._siReportSrc=null;
 
 }
 
