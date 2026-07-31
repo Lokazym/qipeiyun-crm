@@ -588,6 +588,19 @@ async function loadCloudRaw(){
 
 }
 
+// 带自动重试的 GitHub 请求：中国网络访问 api.github.com 经常瞬时失败，重试可大幅减少“同步失败”
+async function _ghRetry(url,opts,tries){
+  tries=tries||4; let last=null;
+  for(let i=0;i<tries;i++){
+    try{
+      const r=await fetch(url,opts);
+      if(r.status>=500||r.status===429){ last=r; await new Promise(s=>setTimeout(s,800*(i+1))); continue; }
+      return r;
+    }catch(e){ last=null; await new Promise(s=>setTimeout(s,800*(i+1))); }
+  }
+  return last;
+}
+
 async function saveCloudRaw(content){
 
   if(ghSyncing)return false; ghSyncing=true; setSyncStatus('syncing');
@@ -604,11 +617,11 @@ async function saveCloudRaw(content){
 
       try{
 
-        const r=await fetch('https://api.github.com/repos/'+GH_REPO+'/contents/'+GH_DATA_PATH+'?ref='+GH_BRANCH,{headers:{'Authorization':'token '+ghToken}});
+        const r=await _ghRetry('https://api.github.com/repos/'+GH_REPO+'/contents/'+GH_DATA_PATH+'?ref='+GH_BRANCH,{headers:{'Authorization':'token '+ghToken}});
 
-        if(r.status===404){ isNew=true; }            // 文件不存在 -> 允许创建（不会覆盖任何已有数据）
+        if(r&&r.status===404){ isNew=true; }            // 文件不存在 -> 允许创建（不会覆盖任何已有数据）
 
-        else if(r.ok){ const f=await r.json(); sha=f.sha; }
+        else if(r&&r.ok){ const f=await r.json(); sha=f.sha; }
 
         // 其它（含网络/令牌错误）-> sha 仍为 null，下面会安全中止，绝不盲目覆盖
 
@@ -629,13 +642,13 @@ async function saveCloudRaw(content){
 
     if(sha)body.sha=sha;            // 更新需带 sha（防并发覆盖）；新建不带
 
-    const r=await fetch('https://api.github.com/repos/'+GH_REPO+'/contents/'+GH_DATA_PATH,{method:'PUT',headers:{'Authorization':'token '+ghToken,'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const r=await _ghRetry('https://api.github.com/repos/'+GH_REPO+'/contents/'+GH_DATA_PATH,{method:'PUT',headers:{'Authorization':'token '+ghToken,'Content-Type':'application/json'},body:JSON.stringify(body)},4);
 
-    if(r.ok){const f=await r.json();ghDataSha=f.content.sha;setSyncStatus('saved');_okFlag=true;}
+    if(r&&r.ok){const f=await r.json();ghDataSha=f.content.sha;setSyncStatus('saved');_okFlag=true;}
 
-    else if(r.status===409){setSyncStatus('conflict');toast('数据冲突，请刷新页面');}
+    else if(r&&r.status===409){setSyncStatus('conflict');toast('数据冲突，请刷新页面');}
 
-    else{setSyncStatus('error');toast('云端保存失败');}
+    else{setSyncStatus('error');toast('云端同步失败（已重试）——数据已安全存在本机，联网后会自动重新同步');}
 
   }catch(e){setSyncStatus('error');}
 
