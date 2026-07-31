@@ -488,6 +488,8 @@ tr:hover{background:#fafafa}
 
     <button class="btn" onclick="doLogin()">进入</button>
 
+    <div class="link" onclick="openRecovery()" style="color:#2563eb;font-weight:600">🔧 数据找回（从云端历史版本合并恢复）</div>
+
     <div class="link" onclick="resetCloud()">忘记密码？重置数据</div>
 
   </div>
@@ -588,7 +590,9 @@ async function loadCloudRaw(){
 
 async function saveCloudRaw(content){
 
-  if(ghSyncing)return; ghSyncing=true; setSyncStatus('syncing');
+  if(ghSyncing)return false; ghSyncing=true; setSyncStatus('syncing');
+
+  let _okFlag=false;
 
   try{
 
@@ -617,7 +621,7 @@ async function saveCloudRaw(content){
       // 无法确定云端当前状态（多半是网络/令牌问题）：绝不覆盖，仅保留本地
       setSyncStatus('error'); toast('云端暂不可用，数据已保存在本机浏览器，联网后重试同步');
 
-      ghSyncing=false; return;
+      ghSyncing=false; return false;
 
     }
 
@@ -627,7 +631,7 @@ async function saveCloudRaw(content){
 
     const r=await fetch('https://api.github.com/repos/'+GH_REPO+'/contents/'+GH_DATA_PATH,{method:'PUT',headers:{'Authorization':'token '+ghToken,'Content-Type':'application/json'},body:JSON.stringify(body)});
 
-    if(r.ok){const f=await r.json();ghDataSha=f.content.sha;setSyncStatus('saved');}
+    if(r.ok){const f=await r.json();ghDataSha=f.content.sha;setSyncStatus('saved');_okFlag=true;}
 
     else if(r.status===409){setSyncStatus('conflict');toast('数据冲突，请刷新页面');}
 
@@ -637,9 +641,11 @@ async function saveCloudRaw(content){
 
   ghSyncing=false;
 
+  return _okFlag;
+
 }
 
-async function persistCloud(data,pwd){const enc=await encryptObj(data,pwd);await saveCloudRaw(JSON.stringify(enc));}
+async function persistCloud(data,pwd){const enc=await encryptObj(data,pwd);try{localStorage.setItem(STORAGE_KEY+'_enc',JSON.stringify(enc));}catch(e){}return await saveCloudRaw(JSON.stringify(enc));}
 
 function setSyncStatus(s){
 
@@ -660,6 +666,159 @@ function showLogin(){const e=document.getElementById('loginOverlay');if(e)e.styl
 function hideLogin(){const e=document.getElementById('loginOverlay');if(e)e.style.display='none';const b=document.getElementById('crmSyncBadge');if(b)b.style.display='flex';}
 
 function showLoginError(msg){const e=document.getElementById('loginError');if(!e)return;if(msg){e.textContent=msg;e.style.display='block';}else e.style.display='none';}
+
+// ===================== 数据找回：从云端历史版本自动恢复 =====================
+function _rvEmpty(v){
+  if(v===null||v===undefined)return true;
+  if(Array.isArray(v))return v.length===0;
+  if(typeof v==='object')return Object.keys(v).length===0;
+  if(typeof v==='string')return v.trim()==='';
+  if(typeof v==='number')return v===0;
+  return !v;
+}
+function _rvIssueKey(it){ if(!it)return ''; return [(it.name||'').trim(),(it.exp||'').trim(),(it.repDate||'').trim()].join('|'); }
+function _rvTodoKey(t){ if(t===null||t===undefined)return ''; return typeof t==='string'?t.trim():JSON.stringify(t); }
+function _rvCustKey(c){ if(!c)return ''; return String(c.id!==undefined&&c.id!==null&&c.id!==''?c.id:(c.name||'')).trim(); }
+// 把 b 中有值、a 中为空的字段补进 a（不覆盖 a 已有的值）
+function _rvFill(a,b){
+  if(!b||typeof b!=='object')return a;
+  for(const k in b){ if(!Object.prototype.hasOwnProperty.call(b,k))continue;
+    if(_rvEmpty(a[k])&&!_rvEmpty(b[k])) a[k]=b[k];
+  }
+  return a;
+}
+// 跨版本合并：snaps 按时间从新到旧排列
+function mergeSnapshots(snaps){
+  snaps=(snaps||[]).filter(s=>s&&typeof s==='object');
+  if(!snaps.length)return null;
+  const out=JSON.parse(JSON.stringify(snaps[0]));
+  if(!out.meta)out.meta={};
+  if(!out.meta.profile)out.meta.profile={};
+  if(!out.meta.profile.months)out.meta.profile.months={};
+  // --- 客户：以最新为准，缺失的字段/记录从旧版本补齐 ---
+  const cm=new Map();
+  (out.customers||[]).forEach(c=>{ const k=_rvCustKey(c); if(k)cm.set(k,c); });
+  // --- 问题 / 待办 / 报告 ---
+  const im=new Map(), tm=new Map(), rm=new Map();
+  (out.issues||[]).forEach(it=>{ const k=_rvIssueKey(it); if(k&&k!=='||')im.set(k,it); });
+  (out.meta.todos||[]).forEach(t=>{ const k=_rvTodoKey(t); if(k)tm.set(k,t); });
+  (out.meta.reports||[]).forEach(r=>{ const k=JSON.stringify(r); rm.set(k,r); });
+  for(let i=1;i<snaps.length;i++){
+    const s=snaps[i]||{}, sm=s.meta||{};
+    (s.customers||[]).forEach(c=>{
+      const k=_rvCustKey(c); if(!k)return;
+      if(cm.has(k)) _rvFill(cm.get(k),c);       // 老版本里有、新版本空着的字段补回来
+      else cm.set(k,JSON.parse(JSON.stringify(c)));
+    });
+    (s.issues||[]).forEach(it=>{
+      const k=_rvIssueKey(it); if(!k||k==='||')return;
+      if(im.has(k)) _rvFill(im.get(k),it);
+      else im.set(k,JSON.parse(JSON.stringify(it)));
+    });
+    (sm.todos||[]).forEach(t=>{ const k=_rvTodoKey(t); if(k&&!tm.has(k))tm.set(k,t); });
+    (sm.reports||[]).forEach(r=>{ const k=JSON.stringify(r); if(!rm.has(k))rm.set(k,r); });
+    // 业绩目标：按月取“最新的非零值”
+    const mo=(sm.profile||{}).months||{};
+    for(const mk in mo){
+      const cur=out.meta.profile.months[mk]||{}, old=mo[mk]||{};
+      if(_rvEmpty(cur.target)&&!_rvEmpty(old.target))cur.target=old.target;
+      if(_rvEmpty(cur.done)&&!_rvEmpty(old.done))cur.done=old.done;
+      out.meta.profile.months[mk]=cur;
+    }
+    // 画像其它字段 + meta 标量
+    if(sm.profile)_rvFill(out.meta.profile,sm.profile);
+    _rvFill(out.meta,sm);
+    ['tech','people'].forEach(k=>{ if(_rvEmpty(out[k])&&!_rvEmpty(s[k]))out[k]=s[k]; });
+  }
+  out.customers=Array.from(cm.values());
+  out.issues=Array.from(im.values());
+  out.meta.todos=Array.from(tm.values());
+  out.meta.reports=Array.from(rm.values());
+  return out;
+}
+function _rvStat(d){
+  const m=(d&&d.meta)||{}, mo=((m.profile||{}).months)||{};
+  let tg=0; for(const k in mo){ const v=mo[k]||{}; if(v.target||v.done)tg++; }
+  return {cust:((d&&d.customers)||[]).length, iss:((d&&d.issues)||[]).length,
+          todo:(m.todos||[]).length, months:tg, rep:(m.reports||[]).length};
+}
+async function _ghJSON(url){
+  const r=await fetch(url,{headers:{'Authorization':'token '+ghToken,'Accept':'application/vnd.github+json'}});
+  if(!r.ok)throw new Error('GitHub '+r.status);
+  return await r.json();
+}
+function openRecovery(){
+  let box=document.getElementById('rvModal');
+  if(!box){
+    box=document.createElement('div'); box.id='rvModal';
+    box.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px';
+    box.innerHTML='<div style="background:#fff;color:#222;border-radius:12px;max-width:720px;width:100%;max-height:86vh;overflow:auto;padding:20px;font-size:14px;line-height:1.7">'
+      +'<div style="font-size:18px;font-weight:700;margin-bottom:6px">数据找回</div>'
+      +'<div style="color:#666;margin-bottom:12px">自动扫描云端<b>全部历史版本</b>，用你的密码逐个解密，把每次被清空前的客户、问题、待办、业绩目标<b>合并找回</b>并写回云端。</div>'
+      +'<input id="rvPwd" type="password" placeholder="访问密码" style="width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;margin-bottom:10px;box-sizing:border-box">'
+      +'<div><button id="rvGo" style="background:#2563eb;color:#fff;border:0;padding:10px 18px;border-radius:8px;cursor:pointer;font-size:14px">开始扫描并恢复</button> '
+      +'<button onclick="document.getElementById(\'rvModal\').style.display=\'none\'" style="background:#eee;color:#333;border:0;padding:10px 18px;border-radius:8px;cursor:pointer;font-size:14px">关闭</button></div>'
+      +'<pre id="rvLog" style="background:#0f172a;color:#a7f3d0;padding:12px;border-radius:8px;margin-top:12px;white-space:pre-wrap;word-break:break-all;max-height:46vh;overflow:auto;font-size:12px;line-height:1.6"></pre>'
+      +'</div>';
+    document.body.appendChild(box);
+    box.querySelector('#rvGo').onclick=runRecovery;
+  }
+  box.style.display='flex';
+  const lp=document.getElementById('loginPwd');
+  if(lp&&lp.value)box.querySelector('#rvPwd').value=lp.value;
+  box.querySelector('#rvPwd').focus();
+}
+async function runRecovery(){
+  const log=document.getElementById('rvLog');
+  const btn=document.getElementById('rvGo');
+  const pwd=document.getElementById('rvPwd').value;
+  const say=t=>{ log.textContent+=t+'\n'; log.scrollTop=log.scrollHeight; };
+  if(!pwd||pwd.length<6){ alert('请输入访问密码（至少6位）'); return; }
+  btn.disabled=true; btn.textContent='正在恢复...'; log.textContent='';
+  try{
+    say('① 读取云端历史版本列表...');
+    let commits=[];
+    for(let page=1;page<=3;page++){
+      const cs=await _ghJSON('https://api.github.com/repos/'+GH_REPO+'/commits?path='+GH_DATA_PATH+'&sha='+GH_BRANCH+'&per_page=100&page='+page);
+      if(!cs.length)break; commits=commits.concat(cs); if(cs.length<100)break;
+    }
+    say('   共发现 '+commits.length+' 个历史版本');
+    const snaps=[], seen={};
+    let ok=0, bad=0;
+    for(let i=0;i<commits.length;i++){
+      const c=commits[i], when=(c.commit.author.date||'').replace('T',' ').replace('Z','');
+      try{
+        const f=await _ghJSON('https://api.github.com/repos/'+GH_REPO+'/contents/'+GH_DATA_PATH+'?ref='+c.sha);
+        const raw=new TextDecoder().decode(b64dec((f.content||'').replace(/\n/g,'')));
+        if(seen[raw.length+':'+raw.slice(0,40)]){ continue; }
+        seen[raw.length+':'+raw.slice(0,40)]=1;
+        const obj=JSON.parse(raw);
+        let data=null;
+        if(obj&&obj.ct&&obj.iv&&obj.salt){ data=await decryptObj(obj,pwd); }
+        else if(obj&&obj.customers){ data=obj; }
+        if(data){ const s=_rvStat(data); snaps.push(data); ok++;
+          say('   ✓ '+when+'  客户'+s.cust+' 问题'+s.iss+' 待办'+s.todo+' 目标月'+s.months+' 报告'+s.rep); }
+      }catch(e){ bad++; say('   × '+when+'  解密失败（'+(e.name||e.message)+'）'); }
+    }
+    if(!ok){ say('\n没有任何版本能解开——密码可能不对。请换个密码再试。'); btn.disabled=false; btn.textContent='开始扫描并恢复'; return; }
+    say('\n② 跨版本合并（去重）...');
+    const merged=mergeSnapshots(snaps);
+    const st=_rvStat(merged);
+    say('   合并结果：客户 '+st.cust+' | 问题 '+st.iss+' | 待办 '+st.todo+' | 业绩目标 '+st.months+' 个月 | 报告 '+st.rep);
+    say('\n③ 写回云端并保存到本机...');
+    appData=merged; sessionKey=pwd;
+    ghSyncing=false; ghDataSha=null;               // 解开并发锁并强制重新取 sha，确保这次一定写得进去
+    const wrote=await persistCloud(appData,pwd);   // 内部已同时写入本机加密缓存
+    say(wrote?'   ✓ 云端已更新，本机缓存已写入':'   ⚠ 云端暂时写不进去（网络/令牌），但数据已存在本机，联网后会自动同步');
+    say('\n恢复成功！页面将在 3 秒后自动进入。');
+    setTimeout(()=>{ try{ document.getElementById('rvModal').style.display='none'; }catch(e){}
+      const lp=document.getElementById('loginPwd'); if(lp)lp.value=pwd; doLogin(); },3000);
+  }catch(e){
+    say('\n出错：'+(e.message||e));
+    say('若提示 GitHub 4xx，多为网络或令牌问题：可在「更多→云端同步令牌」填入你自己的 Token 后重试。');
+    btn.disabled=false; btn.textContent='开始扫描并恢复';
+  }
+}
 
 async function boot(){
 
