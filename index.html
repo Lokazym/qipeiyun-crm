@@ -1510,7 +1510,7 @@ function renderIssueTable(){
 
   if(appData.issues.length===0){document.getElementById('issueTable').innerHTML='<div class="empty-state"><div class="icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6a2 2 0 0 1 2 2v1h2a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2V4a2 2 0 0 1 2-2z"/></svg></div><p>暂无问题，使用上方粘贴导入或快捷录入添加</p></div>';return}
 
-  document.getElementById('issueTable').innerHTML='<table><thead><tr><th style="width:130px">客户名称</th><th style="width:65px">类型</th><th style="width:65px">优先级</th><th>问题描述</th><th style="width:80px">客服</th><th style="width:80px">状态</th><th style="width:60px">操作</th></tr></thead><tbody>'+appData.issues.map((iss,i)=>'<tr class="'+(iss.status==='done'?'done':'')+'"><td><input value="'+iss.name+'" onchange="updateIssueField('+i+',\'name\',this.value)" style="font-weight:600"></td><td><select onchange="updateIssueField('+i+',\'type\',this.value)"><option value="bug" '+(iss.type==='bug'?'selected':'')+'><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="6" width="8" height="13" rx="4"/><path d="M19 7l-3 2M5 7l3 2M19 13h-3M8 13H5M19 19l-3-2M5 19l3-2M12 6V4"/></svg>Bug</option><option value="咨询" '+((iss.type||'咨询')==='咨询'?'selected':'')+'>💬咨询</option><option value="需求" '+(iss.type==='需求'?'selected':'')+'><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>需求</option><option value="其他" '+(iss.type==='其他'?'selected':'')+'><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5M9 10.76V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4.76a2 2 0 0 0 .59 1.41l2.41 2.41a2 2 0 0 1 .59 1.42V18a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-1.59a2 2 0 0 1 .59-1.42l2.41-2.41a2 2 0 0 0 .59-1.41z"/></svg>其他</option></select></td><td><select onchange="updateIssueField('+i+',\'priority\',this.value)"><option value="high" '+(iss.priority==='high'?'selected':'')+'><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="#ff4d4f"/></svg>高</option><option value="medium" '+(iss.priority==='medium'?'selected':'')+'><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="#faad14"/></svg>中</option><option value="low" '+(iss.priority==='low'?'selected':'')+'><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="#d4b106"/></svg>低</option></select></td><td><input value="'+(iss.reason||'')+'" onchange="updateIssueField('+i+',\'reason\',this.value)" style="width:100%"></td><td><input value="'+(iss.zk||'')+'" onchange="updateIssueField('+i+',\'zk\',this.value)"></td><td><select onchange="updateIssueField('+i+',\'status\',this.value)"><option value="pending" '+(iss.status!=='done'?'selected':'')+'>待处理</option><option value="done" '+(iss.status==='done'?'selected':'')+'>已完成</option></select></td><td><button class="btn btn-xs btn-success" onclick="toggleIssue('+i+')" title="切换状态">✓</button><button class="btn btn-outline btn-xs" style="color:var(--danger);margin-left:2px" onclick="deleteIssueRow('+i+')">×</button></td></tr>').join('')+'</tbody></table>';
+  document.getElementById('issueTable').innerHTML='<table><thead><tr><th style="width:130px">客户名称</th><th style="width:65px">类型</th><th style="width:65px">优先级</th><th>问题描述</th><th style="width:80px">客服</th><th style="width:80px">状态</th><th style="width:60px">操作</th></tr></thead><tbody>'+appData.issues.map((iss,i)=>'<tr class="'+(iss.status==='done'?'done':'')+'"><td><input value="'+iss.name+'" onchange="updateIssueField('+i+',\'name\',this.value)" style="font-weight:600"></td><td><select onchange="updateIssueField('+i+',\'type\',this.value)"><option value="bug" '+(iss.type==='bug'?'selected':'')+'><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="6" width="8" height="13" rx="4"/><path d="M19 7l-3 2M5 7l3 2M19 13h-3M8 13H5M19 19l-3-2M5 19l3-2M12 6V4"/></svg>Bug</option><option value="咨询" '+((iss.type||'咨询')==='咨询'?'selected':'')+'>💬咨询</option><option value="需求" '+(iss.type==='需求'?'selected':'')+'><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>需求</option><option value="其他" '+(iss.type==='其他'?'selected':'')+'><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5M9 10.76V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4.76a2 2 0 0 0 .59 1.41l2.41 2.41a2 2 0 0 1 .59 1.42V18a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-1.59a2 2 0 0 1 .59-1.42l2.41-2.41a2 2 0 0 0 .59-1.41z"/></svg>其他</option></select></td><td><select onchange="updateIssueField('+i+',\'priority\',this.value)"><option value="high" '+(iss.priority==='high'?'selected':'')+'><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="#ff4d4f"/></svg>高</option><option value="medium" '+(iss.priority==='medium'?'selected':'')+'><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="#faad14"/></svg>中</option><option value="low" '+(iss.priority==='low'?'selected':'')+'><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="#d4b106"/></svg>低</option></select></td><td><input value="'+(iss.reason||'')+'" onchange="updateIssueField('+i+',\'reason\',this.value)" style="width:100%"></td><td><input value="'+(iss.zk||'')+'" onchange="updateIssueField('+i+',\'zk\',this.value)"></td><td><select onchange="updateIssueField('+i+',\'status\',this.value)"><option value="pending" '+(iss.status!=='done'?'selected':'')+'>待处理</option><option value="done" '+(iss.status==='done'?'selected':'')+'>已完成</option></select></td><td><button class="btn btn-xs btn-primary" onclick="editIssueRow('+i+')" title="编辑">✎</button><button class="btn btn-xs btn-success" onclick="toggleIssue('+i+')" title="切换状态">✓</button><button class="btn btn-outline btn-xs" style="color:var(--danger);margin-left:2px" onclick="deleteIssueRow('+i+')">×</button></td></tr>').join('')+'</tbody></table>';
 
 }
 
@@ -1531,6 +1531,47 @@ function addIssueRow(){appData.issues.unshift({id:'iss_'+Date.now(),name:'',type
 function toggleIssue(idx){appData.issues[idx].status=appData.issues[idx].status==='done'?'pending':'done';touchIssueDate();saveData();renderIssueStats();renderIssueTable()}
 
 function deleteIssueRow(idx){if(!confirm('删除？'))return;appData.issues.splice(idx,1);touchIssueDate();saveData();renderIssueStats();renderIssueTable();toast('已删除')}
+
+function editIssueRow(idx){openIssueEditModal(idx)}
+
+function openIssueEditModal(idx){
+  const iss=appData.issues[idx];if(!iss)return;
+  const m=document.createElement('div');m.className='modal-overlay show';m.id='issueEditModal';
+  const cn=activeCustomers().map(c=>c.name).slice(0,200);
+  m.innerHTML='<div class="modal" style="max-width:520px"><h3>编辑问题</h3>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0">'+
+      '<div><label style="font-size:13px;color:var(--text2);display:block;margin-bottom:4px">客户名称</label><input id="ieName" list="ieNameList" value="'+(iss.name||'').replace(/"/g,'&quot;')+'" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:14px"><datalist id="ieNameList">'+cn.map(n=>'<option value="'+n.replace(/"/g,'&quot;')+'">').join('')+'</datalist></div>'+
+      '<div><label style="font-size:13px;color:var(--text2);display:block;margin-bottom:4px">客服</label><input id="ieZk" value="'+(iss.zk||'').replace(/"/g,'&quot;')+'" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:14px"></div>'+
+      '<div><label style="font-size:13px;color:var(--text2);display:block;margin-bottom:4px">类型</label><select id="ieType" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:14px"><option value="bug" '+(iss.type==='bug'?'selected':'')+'>Bug</option><option value="咨询" '+((iss.type||'咨询')==='咨询'?'selected':'')+'>咨询</option><option value="需求" '+(iss.type==='需求'?'selected':'')+'>需求</option><option value="其他" '+(iss.type==='其他'?'selected':'')+'>其他</option></select></div>'+
+      '<div><label style="font-size:13px;color:var(--text2);display:block;margin-bottom:4px">优先级</label><select id="iePriority" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:14px"><option value="high" '+(iss.priority==='high'?'selected':'')+'>高</option><option value="medium" '+(iss.priority==='medium'?'selected':'')+'>中</option><option value="low" '+(iss.priority==='low'?'selected':'')+'>低</option></select></div>'+
+      '<div><label style="font-size:13px;color:var(--text2);display:block;margin-bottom:4px">状态</label><select id="ieStatus" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:14px"><option value="pending" '+(iss.status!=='done'?'selected':'')+'>待处理</option><option value="done" '+(iss.status==='done'?'selected':'')+'>已完成</option></select></div>'+
+      '<div><label style="font-size:13px;color:var(--text2);display:block;margin-bottom:4px">到期日</label><input id="ieDl" type="date" value="'+(iss.dl||'')+'" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:14px"></div>'+
+      '<div><label style="font-size:13px;color:var(--text2);display:block;margin-bottom:4px">费用(元)</label><input id="ieFee" type="number" value="'+(iss.fee||0)+'" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:14px"></div>'+
+      '<div><label style="font-size:13px;color:var(--text2);display:block;margin-bottom:4px">经理/销售</label><input id="ieJl" value="'+(iss.jl||'').replace(/"/g,'&quot;')+'" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:14px"></div>'+
+    '</div>'+
+    '<div style="margin-bottom:12px"><label style="font-size:13px;color:var(--text2);display:block;margin-bottom:4px">问题描述</label><textarea id="ieReason" rows="3" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:14px;resize:vertical;font-family:inherit">'+(iss.reason||'').replace(/</g,'&lt;')+'</textarea></div>'+
+    '<div style="margin-bottom:12px"><label style="font-size:13px;color:var(--text2);display:block;margin-bottom:4px">备注</label><textarea id="ieNote" rows="2" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:14px;resize:vertical;font-family:inherit">'+(iss.note||'').replace(/</g,'&lt;')+'</textarea></div>'+
+    '<div style="margin-bottom:12px"><label style="font-size:13px;color:var(--text2);display:block;margin-bottom:4px">经验</label><input id="ieExp" value="'+(iss.exp||'').replace(/"/g,'&quot;')+'" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:14px"></div>'+
+    '<div class="form-actions"><button class="btn btn-outline" onclick="document.getElementById(\'issueEditModal\').remove()">取消</button><button class="btn btn-primary" onclick="saveIssueEdit('+idx+')">保存</button></div>'+
+  '</div>';
+  document.body.appendChild(m);
+}
+
+function saveIssueEdit(idx){
+  const iss=appData.issues[idx];if(!iss)return;
+  iss.name=document.getElementById('ieName').value.trim();
+  iss.zk=document.getElementById('ieZk').value.trim();
+  iss.type=document.getElementById('ieType').value;
+  iss.priority=document.getElementById('iePriority').value;
+  iss.status=document.getElementById('ieStatus').value;
+  iss.dl=document.getElementById('ieDl').value||null;
+  iss.fee=parseFloat(document.getElementById('ieFee').value)||0;
+  iss.jl=document.getElementById('ieJl').value.trim();
+  iss.reason=document.getElementById('ieReason').value.trim();
+  iss.note=document.getElementById('ieNote').value.trim();
+  iss.exp=document.getElementById('ieExp').value.trim();
+  touchIssueDate();saveData();document.getElementById('issueEditModal').remove();renderIssueTable();renderIssueStats();toast('已保存');
+}
 
 function openImportIssueModal(){openModal('importIssueModal')}
 
@@ -1742,7 +1783,7 @@ function renderTodos(){
 
       const pText=t.priority==='high'?'高':t.priority==='medium'?'中':'低';
 
-      html+='<div style="display:flex;align-items:flex-start;gap:8px;padding:10px 12px;border-bottom:1px solid var(--border)'+(t.done?';opacity:.5':'')+'"><input type="checkbox" '+(t.done?'checked':'')+' onchange="toggleTodo('+t._idx+')" style="margin-top:4px;cursor:pointer;width:16px;height:16px"><div style="flex:1"><div style="font-size:14px;font-weight:'+(t.done?'400':'600')+';text-decoration:'+(t.done?'line-through':'none')+'">'+t.content+'</div><div style="display:flex;gap:10px;margin-top:4px;font-size:11px;color:var(--text2)">'+(t.customer?'<span>客户:'+t.customer+'</span>':'')+'<span style="color:'+pColor+'">['+pText+'优先级]</span>'+(t.dueDate?'<span style="color:'+(isOverdue?'var(--danger)':'var(--text2)')+'">'+(isOverdue?'已逾期':'截止')+':'+t.dueDate+'</span>':'')+'</div></div><button class="btn btn-outline btn-xs" onclick="deleteTodo('+t._idx+')" style="color:var(--danger);border:none">×</button></div>';
+      html+='<div style="display:flex;align-items:flex-start;gap:8px;padding:10px 12px;border-bottom:1px solid var(--border)'+(t.done?';opacity:.5':'')+'"><input type="checkbox" '+(t.done?'checked':'')+' onchange="toggleTodo('+t._idx+')" style="margin-top:4px;cursor:pointer;width:16px;height:16px"><div style="flex:1"><div style="font-size:14px;font-weight:'+(t.done?'400':'600')+';text-decoration:'+(t.done?'line-through':'none')+'">'+t.content+'</div><div style="display:flex;gap:10px;margin-top:4px;font-size:11px;color:var(--text2)">'+(t.customer?'<span>客户:'+t.customer+'</span>':'')+'<span style="color:'+pColor+'">['+pText+'优先级]</span>'+(t.dueDate?'<span style="color:'+(isOverdue?'var(--danger)':'var(--text2)')+'">'+(isOverdue?'已逾期':'截止')+':'+t.dueDate+'</span>':'')+'</div></div><button class="btn btn-outline btn-xs" onclick="editTodo('+t._idx+')" title="编辑" style="border:none">✎</button><button class="btn btn-outline btn-xs" onclick="deleteTodo('+t._idx+')" style="color:var(--danger);border:none">×</button></div>';
 
     }
 
@@ -1752,33 +1793,37 @@ function renderTodos(){
 
 }
 
-function openTodoModal(){
-
+function openTodoModal(editIdx){
+  const editing=(editIdx!==undefined&&editIdx!==null)?appData.meta.todos[editIdx]:null;
   const m=document.createElement('div');m.className='modal-overlay show';m.id='todoModal';
-
   const cn=activeCustomers().map(c=>c.name).slice(0,200);
-
-  m.innerHTML='<div class="modal" style="max-width:440px"><h3>新建待办</h3><div style="margin:14px 0"><div style="margin-bottom:12px"><label style="font-size:13px;color:var(--text2);display:block;margin-bottom:4px">待办内容</label><textarea id="todoContent" rows="3" placeholder="如：客户XX需求待提交禅道&#10;可以输入多行内容" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:14px;resize:vertical;font-family:inherit"></textarea></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px"><div><label style="font-size:13px;color:var(--text2);display:block;margin-bottom:4px">关联客户（可选）</label><input type="text" id="todoCustomer" list="todoCustomerList" placeholder="客户名称" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px"><datalist id="todoCustomerList">'+cn.map(n=>'<option value="'+n.replace(/"/g,'&quot;')+'">').join('')+'</datalist></div><div><label style="font-size:13px;color:var(--text2);display:block;margin-bottom:4px">截止日期</label><input type="date" id="todoDueDate" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px"></div></div><div><label style="font-size:13px;color:var(--text2);display:block;margin-bottom:4px">优先级</label><select id="todoPriority" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px"><option value="high">高</option><option value="medium" selected>中</option><option value="low">低</option></select></div></div><div class="form-actions"><button class="btn btn-outline" onclick="document.getElementById(\'todoModal\').remove()">取消</button><button class="btn btn-primary" onclick="saveTodo()">添加</button></div></div>';
-
+  m.innerHTML='<div class="modal" style="max-width:440px"><h3>'+(editing?'编辑待办':'新建待办')+'</h3><div style="margin:14px 0"><div style="margin-bottom:12px"><label style="font-size:13px;color:var(--text2);display:block;margin-bottom:4px">待办内容</label><textarea id="todoContent" rows="3" placeholder="如：客户XX需求待提交禅道&#10;可以输入多行内容" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:14px;resize:vertical;font-family:inherit">'+(editing?(editing.content||'').replace(/</g,'&lt;'):'')+'</textarea></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px"><div><label style="font-size:13px;color:var(--text2);display:block;margin-bottom:4px">关联客户（可选）</label><input type="text" id="todoCustomer" list="todoCustomerList" value="'+(editing?(editing.customer||'').replace(/"/g,'&quot;'):'')+'" placeholder="客户名称" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px"><datalist id="todoCustomerList">'+cn.map(n=>'<option value="'+n.replace(/"/g,'&quot;')+'">').join('')+'</datalist></div><div><label style="font-size:13px;color:var(--text2);display:block;margin-bottom:4px">截止日期</label><input type="date" id="todoDueDate" value="'+(editing?(editing.dueDate||''):'')+'" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px"></div></div><div><label style="font-size:13px;color:var(--text2);display:block;margin-bottom:4px">优先级</label><select id="todoPriority" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px"><option value="high" '+(editing&&editing.priority==="high"?'selected':'')+'>高</option><option value="medium" '+((!editing||(editing.priority||'medium')==='medium')?'selected':'')+'>中</option><option value="low" '+(editing&&editing.priority==="low"?'selected':'')+'>低</option></select></div></div><div class="form-actions"><button class="btn btn-outline" onclick="document.getElementById(\'todoModal\').remove()">取消</button><button class="btn btn-primary" onclick="saveTodo()">'+(editing?'保存':'添加')+'</button></div></div>';
   document.body.appendChild(m);
-
+  m.setAttribute('data-edit',(editing?editIdx:''));
 }
+
+
+
 
 function saveTodo(){
-
   const content=document.getElementById('todoContent').value.trim();if(!content){toast('请输入待办内容');return}
-
   if(!appData.meta.todos)appData.meta.todos=[];
-
+  const eIdx=document.getElementById('todoModal').getAttribute('data-edit');
+  if(eIdx!==null&&eIdx!==''){
+    const k=parseInt(eIdx,10);const t=appData.meta.todos[k];
+    if(t){t.content=content;t.customer=document.getElementById('todoCustomer').value.trim();t.priority=document.getElementById('todoPriority').value;t.dueDate=document.getElementById('todoDueDate').value;}
+    saveData();document.getElementById('todoModal').remove();renderTodos();toast('待办已更新');return;
+  }
   appData.meta.todos.push({content,customer:document.getElementById('todoCustomer').value.trim(),priority:document.getElementById('todoPriority').value,dueDate:document.getElementById('todoDueDate').value,done:false,created:new Date().toISOString().slice(0,10)});
-
   saveData();document.getElementById('todoModal').remove();renderTodos();toast('待办已添加');
-
 }
+
 
 function toggleTodo(idx){appData.meta.todos[idx].done=!appData.meta.todos[idx].done;saveData();renderTodos()}
 
 function deleteTodo(idx){appData.meta.todos.splice(idx,1);saveData();renderTodos();toast('已删除')}
+
+function editTodo(idx){openTodoModal(idx)}
 
 
 
