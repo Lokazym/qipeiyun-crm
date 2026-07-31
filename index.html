@@ -524,7 +524,9 @@ const GH_BRANCH='gh-pages';
 
 const GH_DATA_PATH='data/Lokazym.json';
 
-let ghToken=['ghp_isa1X5','ugXM4mEdiTBz','tpaUUWtnz6WN','13F52I'].join('');
+let ghToken=localStorage.getItem('qipeiyun_crm_gh_token')||['ghp_isa1X5','ugXM4mEdiTBz','tpaUUWtnz6WN','13F52I'].join('');
+// 允许在「更多」菜单中填入自己的 GitHub Token 覆盖默认（默认令牌为公开网页内置，可能被 GitHub 吊销；建议自行填写以保证云端同步可用）
+function setGhToken(t){ghToken=(t||'').trim();try{localStorage.setItem('qipeiyun_crm_gh_token',ghToken);}catch(e){}toast(ghToken?'已更新云端同步令牌':'已清空云端同步令牌（仅用本机缓存）');}
 
 let ghDataSha=null, ghSyncing=false;
 
@@ -592,9 +594,38 @@ async function saveCloudRaw(content){
 
     let sha=ghDataSha;
 
-    if(!sha){try{const r=await fetch('https://api.github.com/repos/'+GH_REPO+'/contents/'+GH_DATA_PATH+'?ref='+GH_BRANCH,{headers:{'Authorization':'token '+ghToken}});if(r.ok){const f=await r.json();sha=f.sha;}}catch(e){}}
+    let isNew=false;
 
-    const r=await fetch('https://api.github.com/repos/'+GH_REPO+'/contents/'+GH_DATA_PATH,{method:'PUT',headers:{'Authorization':'token '+ghToken,'Content-Type':'application/json'},body:JSON.stringify({message:'CRM云同步 '+new Date().toISOString().slice(0,16),content:btoa(unescape(encodeURIComponent(content))),sha:sha,branch:GH_BRANCH})});
+    if(!sha){
+
+      try{
+
+        const r=await fetch('https://api.github.com/repos/'+GH_REPO+'/contents/'+GH_DATA_PATH+'?ref='+GH_BRANCH,{headers:{'Authorization':'token '+ghToken}});
+
+        if(r.status===404){ isNew=true; }            // 文件不存在 -> 允许创建（不会覆盖任何已有数据）
+
+        else if(r.ok){ const f=await r.json(); sha=f.sha; }
+
+        // 其它（含网络/令牌错误）-> sha 仍为 null，下面会安全中止，绝不盲目覆盖
+
+      }catch(e){}
+
+    }
+
+    if(!sha && !isNew){
+
+      // 无法确定云端当前状态（多半是网络/令牌问题）：绝不覆盖，仅保留本地
+      setSyncStatus('error'); toast('云端暂不可用，数据已保存在本机浏览器，联网后重试同步');
+
+      ghSyncing=false; return;
+
+    }
+
+    const body={message:'CRM云同步 '+new Date().toISOString().slice(0,16),content:btoa(unescape(encodeURIComponent(content))),branch:GH_BRANCH};
+
+    if(sha)body.sha=sha;            // 更新需带 sha（防并发覆盖）；新建不带
+
+    const r=await fetch('https://api.github.com/repos/'+GH_REPO+'/contents/'+GH_DATA_PATH,{method:'PUT',headers:{'Authorization':'token '+ghToken,'Content-Type':'application/json'},body:JSON.stringify(body)});
 
     if(r.ok){const f=await r.json();ghDataSha=f.content.sha;setSyncStatus('saved');}
 
@@ -634,31 +665,45 @@ async function boot(){
 
   showLogin();
 
-  const raw=await loadCloudRaw();
-
   const hint=document.getElementById('loginHint');
 
-  if(raw){
+  // 本地浏览器缓存优先：不依赖 GitHub（中国网络访问 api.github.com 经常失败），
+  // 且绝不因云端取数失败而误判为“首次使用”去覆盖数据
+  const cached=localStorage.getItem(STORAGE_KEY+'_enc');
 
-    try{
+  if(cached){
 
-      const obj=JSON.parse(raw);
+    try{ cloudEnc=JSON.parse(cached); hint.textContent='本地缓存模式：请输入访问密码'; }
 
-      if(obj&&obj.ct&&obj.iv&&obj.salt){cloudEnc=obj;hint.textContent='请输入访问密码';}
+    catch(e){ cloudEnc=null; }
 
-      else if(obj&&obj.customers){cloudSeed=obj;hint.textContent='检测到旧版数据，请设置加密密码完成升级';}
+  }
 
-      else{hint.textContent='首次使用，请设置访问密码（用于加密你的云端数据）';}
+  if(!cloudEnc){
 
-    }catch(e){hint.textContent='首次使用，请设置访问密码（用于加密你的云端数据）';}
+    // 本地无缓存，再尝试云端
+    const raw=await loadCloudRaw();
 
-  }else{
+    if(raw){
 
-    const cached=localStorage.getItem(STORAGE_KEY+'_enc');
+      try{
 
-    if(cached){try{cloudEnc=JSON.parse(cached);hint.textContent='离线模式：请输入访问密码';}catch(e){hint.textContent='首次使用，请设置访问密码（用于加密你的云端数据）';}}
+        const obj=JSON.parse(raw);
 
-    else hint.textContent='首次使用，请设置访问密码（用于加密你的云端数据）';
+        if(obj&&obj.ct&&obj.iv&&obj.salt){cloudEnc=obj;hint.textContent='检测到云端数据，请输入访问密码';}
+
+        else if(obj&&obj.customers){cloudSeed=obj;hint.textContent='检测到旧版数据，请设置加密密码完成升级';}
+
+        else{hint.textContent='首次使用，请设置访问密码（用于加密你的云端数据）';}
+
+      }catch(e){hint.textContent='首次使用，请设置访问密码（用于加密你的云端数据）';}
+
+    }else{
+
+      // 云端取不到：不自动初始化、不覆盖，等用户联网后重试
+      hint.textContent='首次使用，请设置访问密码（用于加密你的云端数据）';
+
+    }
 
   }
 
@@ -678,7 +723,23 @@ async function doLogin(){
 
     if(cloudEnc){ appData=await decryptObj(cloudEnc,pwd); }
 
-    else{ appData=cloudSeed?JSON.parse(JSON.stringify(cloudSeed)):JSON.parse(JSON.stringify(INIT_DATA)); await persistCloud(appData,pwd); }
+    else{
+      // 本地与云端均无可用数据：再确认一次云端，避免网络抖动误判为首次使用而覆盖
+      let reBlob=null;
+      try{ reBlob=await loadCloudRaw(); }catch(e){}
+      if(reBlob){
+        try{
+          const o=JSON.parse(reBlob);
+          if(o&&o.ct&&o.iv&&o.salt){ cloudEnc=o; appData=await decryptObj(o,pwd); }
+          else if(o&&o.customers){ cloudSeed=o; appData=JSON.parse(JSON.stringify(o)); await persistCloud(appData,pwd); }
+          else { appData=JSON.parse(JSON.stringify(INIT_DATA)); await persistCloud(appData,pwd); }
+        }catch(err){ showLoginError('云端数据解密失败，请检查密码或网络后重试'); return; }
+      }else{
+        // 确实没有任何数据：首次使用
+        appData=JSON.parse(JSON.stringify(INIT_DATA));
+        await persistCloud(appData,pwd);
+      }
+    }
 
     sessionKey=pwd;
 
@@ -881,11 +942,11 @@ function exportStandalone(){
 
 }
 
-function importDataPrompt(){const i=document.createElement('input');i.type='file';i.accept='.json';i.onchange=e=>{const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(d.customers){appData=preserveUserScoped(appData,d);saveData();toast('导入成功！（已保留你的业绩目标/待办/客户问题）');setTimeout(()=>location.reload(),1500)}else toast('格式错误')}catch(ex){toast('解析失败')}};r.readAsText(e.target.files[0])};i.click()}
+function importDataPrompt(){const i=document.createElement('input');i.type='file';i.accept='.json';i.onchange=e=>{const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(d&&d.ct&&d.iv&&d.salt){try{localStorage.setItem(STORAGE_KEY+'_enc',JSON.stringify(d));}catch(e){}toast('已载入加密云端备份，正在重新登录解密...');setTimeout(()=>location.reload(),1200);return;}if(d.customers){appData=preserveUserScoped(appData,d);saveData();toast('导入成功！（已保留你的业绩目标/待办/客户问题）');setTimeout(()=>location.reload(),1500)}else toast('格式错误')}catch(ex){toast('解析失败')}};r.readAsText(e.target.files[0])};i.click()}
 
 function resetData(){if(!confirm('确定重置？所有手动修改将丢失。'))return;localStorage.removeItem(STORAGE_KEY);location.reload()}
 
-function toggleMoreMenu(){const m=document.getElementById('moreMenu');if(m)m.style.display=m.style.display==='none'?'block':'none'}
+function toggleMoreMenu(){const m=document.getElementById('moreMenu');if(m){if(!document.getElementById('ghTokenInput')){const w=document.createElement('div');w.style.cssText='padding:10px;border-top:1px solid #eee;margin-top:6px';w.innerHTML='<div style="font-size:12px;font-weight:600;margin-bottom:6px">☁️ 云端同步令牌（可选·建议自填）</div><input id="ghTokenInput" placeholder="粘贴你的 GitHub Token 启用/修复云端同步" style="width:100%;box-sizing:border-box;padding:6px;font-size:12px;border:1px solid #ccc;border-radius:6px" value="'+(localStorage.getItem('qipeiyun_crm_gh_token')||'')+'"><button class="btn btn-outline btn-xs" style="margin-top:6px" onclick="setGhToken(document.getElementById(\'ghTokenInput\').value)">保存令牌</button><div style="font-size:11px;color:var(--text2);margin-top:6px">数据已自动保存在本机浏览器，可随时「导出备份」。<br>默认令牌暴露在公开网页中可能被吊销，自行填写可避免云端同步失效。</div>';m.appendChild(w);}m.style.display=m.style.display==='none'?'block':'none';}}
 
 document.addEventListener('click',function(e){const w=document.getElementById('moreMenuWrap');if(w&&!w.contains(e.target)){const m=document.getElementById('moreMenu');if(m)m.style.display='none'}})
 
